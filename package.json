@@ -1,7 +1,7 @@
 {
   "name": "@mashed-potato-studios/nuxtest",
   "displayName": "NuxTest - Nuxt Testing Extension",
-  "version": "0.5.0",
+  "version": "0.7.1",
   "description": "VSCode extension for running Nuxt.js tests",
   "publisher": "mashed-potato-studios",
   "private": true,
@@ -19,9 +19,11 @@
     "onCommand:nuxtest.debugTest",
     "onCommand:nuxtest.debugTestFile",
     "onCommand:nuxtest.debugAllTests",
+    "onCommand:nuxtest.showComponentPreview",
     "onView:nuxtest-sidebar",
     "onView:nuxtest-coverage",
     "onView:nuxtest-test-history",
+    "onView:nuxtest-test-organization",
     "onLanguage:typescript",
     "onLanguage:vue"
   ],
@@ -153,6 +155,36 @@
         "title": "NuxTest: Clear Test History",
         "icon": "$(clear-all)",
         "enablement": "true"
+      },
+      {
+        "command": "nuxtest.showComponentPreview",
+        "title": "NuxTest: Show Component Preview",
+        "icon": "$(preview)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.createTag",
+        "title": "NuxTest: Create Tag",
+        "icon": "$(tag)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.createFilterPreset",
+        "title": "NuxTest: Create Filter Preset",
+        "icon": "$(filter)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.addTagToTest",
+        "title": "NuxTest: Add Tag to Test",
+        "icon": "$(add)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.refreshTestOrganization",
+        "title": "NuxTest: Refresh Test Organization",
+        "icon": "$(refresh)",
+        "enablement": "true"
       }
     ],
     "viewsContainers": {
@@ -185,6 +217,13 @@
           "name": "Test History & Trends",
           "icon": "resources/icon.svg",
           "contextualTitle": "NuxTest Test History & Trends",
+          "type": "tree"
+        },
+        {
+          "id": "nuxtest-test-organization",
+          "name": "Test Organization",
+          "icon": "resources/icon.svg",
+          "contextualTitle": "NuxTest Test Organization",
           "type": "tree"
         },
         {
@@ -236,6 +275,21 @@
           "command": "nuxtest.clearTestHistory",
           "when": "view == nuxtest-test-history",
           "group": "navigation"
+        },
+        {
+          "command": "nuxtest.refreshTestOrganization",
+          "when": "view == nuxtest-test-organization",
+          "group": "navigation"
+        },
+        {
+          "command": "nuxtest.createTag",
+          "when": "view == nuxtest-test-organization",
+          "group": "navigation"
+        },
+        {
+          "command": "nuxtest.createFilterPreset",
+          "when": "view == nuxtest-test-organization",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -258,6 +312,26 @@
           "command": "nuxtest.debugTestFile",
           "when": "view == nuxtest-test-explorer && viewItem == file",
           "group": "inline@2"
+        },
+        {
+          "command": "nuxtest.addTagToTest",
+          "when": "view == nuxtest-test-explorer && viewItem == test",
+          "group": "1_modification"
+        },
+        {
+          "command": "nuxtest.runTest",
+          "when": "view == nuxtest-test-organization && viewItem == test",
+          "group": "inline@1"
+        },
+        {
+          "command": "nuxtest.debugTest",
+          "when": "view == nuxtest-test-organization && viewItem == test",
+          "group": "inline@2"
+        },
+        {
+          "command": "nuxtest.addTagToTest",
+          "when": "view == nuxtest-test-organization && viewItem == test",
+          "group": "1_modification"
         }
       ],
       "editor/context": [
@@ -285,6 +359,11 @@
           "command": "nuxtest.generateTestForComponent",
           "when": "editorTextFocus && editorLangId == 'vue'",
           "group": "nuxtest@5"
+        },
+        {
+          "command": "nuxtest.showComponentPreview",
+          "when": "editorTextFocus && editorLangId == 'vue'",
+          "group": "nuxtest@6"
         }
       ],
       "explorer/context": [
@@ -307,6 +386,11 @@
           "command": "nuxtest.generateTestForComponent",
           "when": "resourceExtname == .vue",
           "group": "nuxtest@4"
+        },
+        {
+          "command": "nuxtest.showComponentPreview",
+          "when": "resourceExtname == .vue",
+          "group": "nuxtest@5"
         }
       ]
     }
@@ -321,7 +405,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/bahamut.git",
+    "url": "https://github.com/Mashed-Potato-Studios/nuxtest",
     "directory": "packages/utils/nuxtest"
   },
   "keywords": [
@@ -338,7 +422,8 @@
     "@vue/test-utils": "^2.4.4",
     "execa": "^7.1.1",
     "happy-dom": "^13.3.8",
-    "playwright-core": "^1.41.2"
+    "playwright-core": "^1.41.2",
+    "vue": "^3.3.4"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",

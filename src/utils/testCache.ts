@@ -44,25 +44,51 @@ export function initializeStoragePath(context: vscode.ExtensionContext): void {
 function getStoragePath(): string {
   if (!globalStoragePath) {
     // Try to get the extension context
-    const extension = vscode.extensions.getExtension(
-      "mashed-potato-studios.nuxtest"
-    );
+    try {
+      const extension = vscode.extensions.getExtension(
+        "mashed-potato-studios.nuxtest"
+      );
 
-    if (extension && extension.isActive) {
-      // If the extension is active, we can try to use the extensionPath as a fallback
-      const extensionPath = extension.extensionPath;
-      const fallbackPath = path.join(extensionPath, ".cache");
+      if (extension && extension.isActive) {
+        // If the extension is active, we can try to use the extensionPath as a fallback
+        const extensionPath = extension.extensionPath;
+        const fallbackPath = path.join(extensionPath, ".cache");
 
-      if (!fs.existsSync(fallbackPath)) {
-        fs.mkdirSync(fallbackPath, { recursive: true });
+        if (!fs.existsSync(fallbackPath)) {
+          fs.mkdirSync(fallbackPath, { recursive: true });
+        }
+
+        return fallbackPath;
       }
 
-      return fallbackPath;
-    }
+      // If we can't get the extension context, use a temporary directory
+      const tempDir = path.join(
+        process.env.TMPDIR || process.env.TEMP || "/tmp",
+        "nuxtest-cache"
+      );
 
-    throw new Error(
-      "Could not get extension context. Please restart VS Code and try again."
-    );
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      console.warn("Using temporary directory for cache:", tempDir);
+      return tempDir;
+    } catch (error) {
+      console.error("Error getting storage path:", error);
+
+      // Last resort: use a temporary directory
+      const tempDir = path.join(
+        process.env.TMPDIR || process.env.TEMP || "/tmp",
+        "nuxtest-cache"
+      );
+
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      console.warn("Using temporary directory for cache:", tempDir);
+      return tempDir;
+    }
   }
 
   return path.join(globalStoragePath, "cache");

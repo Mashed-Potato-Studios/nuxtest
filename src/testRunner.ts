@@ -9,6 +9,7 @@ import {
 import { checkNuxtTestingDependencies } from "./utils/dependencyChecker";
 import * as testCache from "./utils/testCache";
 import { historyDatabase } from "./utils/historyDatabase";
+import { ShowComponentPreviewCommand } from "./commands/ShowComponentPreviewCommand";
 
 // Global cache object
 let globalTestCache = testCache.loadCache();
@@ -150,6 +151,152 @@ async function saveTestResultsToHistory(
     vscode.commands.executeCommand("nuxtest.refreshTestHistory");
   } catch (error: any) {
     console.error("Failed to save test results to history:", error);
+  }
+}
+
+/**
+ * Check if a test is a component test
+ */
+function isComponentTest(filePath: string, testName: string): boolean {
+  try {
+    // Read the file content
+    const fileContent = fs.readFileSync(filePath, "utf8");
+
+    // Look for patterns that indicate a component test
+    const isVueTestUtils =
+      fileContent.includes("@vue/test-utils") ||
+      fileContent.includes("mount(") ||
+      fileContent.includes("shallowMount(");
+
+    // If the file imports Vue Test Utils, it's likely a component test
+    if (isVueTestUtils) {
+      return true;
+    }
+
+    // Check if the test name or file name contains "component"
+    if (
+      testName.toLowerCase().includes("component") ||
+      filePath.toLowerCase().includes("component")
+    ) {
+      return true;
+    }
+
+    return false;
+  } catch (error: any) {
+    console.error("Error checking if test is a component test:", error);
+    return false;
+  }
+}
+
+/**
+ * Find the component being tested
+ */
+function findTestedComponent(filePath: string): string | null {
+  try {
+    // Read the file content
+    const fileContent = fs.readFileSync(filePath, "utf8");
+
+    // Look for import statements that import a .vue file
+    const importRegex = /import\s+(\w+)\s+from\s+['"](.+?\.vue)['"]/g;
+    const imports: { name: string; path: string }[] = [];
+
+    let match;
+    while ((match = importRegex.exec(fileContent)) !== null) {
+      imports.push({
+        name: match[1],
+        path: match[2],
+      });
+    }
+
+    if (imports.length === 0) {
+      return null;
+    }
+
+    // If there's only one Vue component import, use that
+    if (imports.length === 1) {
+      // Resolve the path relative to the test file
+      const componentPath = path.resolve(
+        path.dirname(filePath),
+        imports[0].path
+      );
+      return componentPath;
+    }
+
+    // If there are multiple, look for mount or shallowMount calls
+    const mountRegex = /(?:mount|shallowMount)\s*\(\s*(\w+)/g;
+    const mountedComponents: string[] = [];
+
+    while ((match = mountRegex.exec(fileContent)) !== null) {
+      mountedComponents.push(match[1]);
+    }
+
+    // Find the first import that matches a mounted component
+    for (const mountedComponent of mountedComponents) {
+      const matchingImport = imports.find(
+        (imp) => imp.name === mountedComponent
+      );
+      if (matchingImport) {
+        // Resolve the path relative to the test file
+        const componentPath = path.resolve(
+          path.dirname(filePath),
+          matchingImport.path
+        );
+        return componentPath;
+      }
+    }
+
+    return null;
+  } catch (error: any) {
+    console.error("Error finding tested component:", error);
+    return null;
+  }
+}
+
+/**
+ * Extract component props/state from test
+ */
+function extractComponentState(fileContent: string, testName: string): any {
+  try {
+    // Find the test function
+    const testRegex = new RegExp(
+      `(?:it|test)\\s*\\(\\s*['"]${testName.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+      )}['"]\\s*,\\s*(?:async\\s*)?(?:function\\s*)?\\(.*?\\)\\s*=>?\\s*{([\\s\\S]*?)\\}\\s*\\)`,
+      "i"
+    );
+    const testMatch = testRegex.exec(fileContent);
+
+    if (!testMatch || !testMatch[1]) {
+      return null;
+    }
+
+    const testBody = testMatch[1];
+
+    // Look for props or data in mount calls
+    const propsRegex = /(?:props|data):\s*({[\s\S]*?})/g;
+    const propsMatches = [...testBody.matchAll(propsRegex)];
+
+    if (propsMatches.length === 0) {
+      return null;
+    }
+
+    // Try to parse the props/data object
+    try {
+      // This is a simplified approach - in a real implementation, you'd need a more robust
+      // way to evaluate JavaScript objects from strings
+      const propsString = propsMatches[0][1]
+        .replace(/(\w+):/g, '"$1":') // Convert property names to strings
+        .replace(/'/g, '"'); // Convert single quotes to double quotes
+
+      return JSON.parse(propsString);
+    } catch (e: any) {
+      console.error("Error parsing component props:", e);
+      return null;
+    }
+  } catch (error: any) {
+    console.error("Error extracting component state:", error);
+    return null;
   }
 }
 
@@ -350,6 +497,27 @@ export async function runNuxtTest(
       // After getting test results, add:
       if (result) {
         await saveTestResultsToHistory([result], filePath);
+      }
+
+      // After determining the test name, check if it's a component test
+      if (testName && isComponentTest(filePath, testName)) {
+        // Find the component being tested
+        const componentPath = findTestedComponent(filePath);
+
+        if (componentPath) {
+          // Read the test file to extract component state
+          const fileContent = fs.readFileSync(filePath, "utf8");
+          const componentState = extractComponentState(fileContent, testName);
+
+          // Show the component preview
+          const provider = ShowComponentPreviewCommand.getProvider();
+          provider.show(componentPath, componentState);
+
+          outputChannel.appendLine(
+            `\nDetected component test for: ${path.basename(componentPath)}`
+          );
+          outputChannel.appendLine(`Opening component preview...`);
+        }
       }
     } else {
       // Test failed
