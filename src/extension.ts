@@ -3,6 +3,7 @@ import { TestExplorerProvider } from "./providers/TestExplorerProvider";
 import { TestResultsProvider } from "./providers/TestResultsProvider";
 import { ActionsProvider } from "./providers/ActionsProvider";
 import { CoverageProvider } from "./providers/CoverageProvider";
+import { TestHistoryProvider } from "./providers/TestHistoryProvider";
 import { CreateTestCommand } from "./commands/CreateTestCommand";
 import { CreateUnitTestCommand } from "./commands/CreateUnitTestCommand";
 import { CreateE2ETestCommand } from "./commands/CreateE2ETestCommand";
@@ -11,6 +12,7 @@ import { GenerateTestForComponentCommand } from "./commands/GenerateTestForCompo
 import { InstallPlaywrightBrowsersCommand } from "./commands/InstallPlaywrightBrowsersCommand";
 import { FixE2ETestsCommand } from "./commands/FixE2ETestsCommand";
 import { ClearTestCacheCommand } from "./commands/ClearTestCacheCommand";
+import { ClearTestHistoryCommand } from "./commands/ClearTestHistoryCommand";
 import { RunTestWithCoverageCommand } from "./commands/RunTestWithCoverageCommand";
 import { RunAllTestsWithCoverageCommand } from "./commands/RunAllTestsWithCoverageCommand";
 import { ShowCoverageCommand } from "./commands/ShowCoverageCommand";
@@ -25,21 +27,27 @@ import {
 } from "./testRunner";
 import { checkNuxtTestingDependencies } from "./utils/dependencyChecker";
 import { initializeStoragePath } from "./utils/testCache";
+import { historyDatabase } from "./utils/historyDatabase";
 
 let testExplorerProvider: TestExplorerProvider;
 let testResultsProvider: TestResultsProvider;
 let actionsProvider: ActionsProvider;
 let coverageProvider: CoverageProvider;
+let testHistoryProvider: TestHistoryProvider;
 
 export function activate(context: vscode.ExtensionContext) {
   // Initialize storage path for test cache
   initializeStoragePath(context);
+
+  // Initialize history database
+  historyDatabase.initialize(context);
 
   // Initialize providers
   testExplorerProvider = new TestExplorerProvider(context);
   testResultsProvider = new TestResultsProvider();
   actionsProvider = new ActionsProvider(context);
   coverageProvider = new CoverageProvider();
+  testHistoryProvider = new TestHistoryProvider(context);
 
   // Initialize test runner with the results provider
   initializeTestResultsProvider(testResultsProvider);
@@ -55,6 +63,10 @@ export function activate(context: vscode.ExtensionContext) {
   );
   vscode.window.registerTreeDataProvider("nuxtest-actions", actionsProvider);
   vscode.window.registerTreeDataProvider("nuxtest-coverage", coverageProvider);
+  vscode.window.registerTreeDataProvider(
+    "nuxtest-test-history",
+    testHistoryProvider
+  );
 
   // Check for required dependencies
   const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
@@ -153,6 +165,7 @@ export function activate(context: vscode.ExtensionContext) {
       coverageProvider.clearCoverageData();
     }),
 
+    // Debug commands
     vscode.commands.registerCommand(
       "nuxtest.debugTest",
       async (filePathOrItem: string | any, lineNumber?: number) => {
@@ -169,6 +182,15 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand("nuxtest.debugAllTests", async () => {
       new DebugAllTestsCommand(context).execute();
+    }),
+
+    // Test History commands
+    vscode.commands.registerCommand("nuxtest.refreshTestHistory", () => {
+      testHistoryProvider.refresh();
+    }),
+
+    vscode.commands.registerCommand("nuxtest.clearTestHistory", () => {
+      new ClearTestHistoryCommand(context).execute();
     })
   );
 

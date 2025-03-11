@@ -1,7 +1,7 @@
 {
   "name": "@mashed-potato-studios/nuxtest",
   "displayName": "NuxTest - Nuxt Testing Extension",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "VSCode extension for running Nuxt.js tests",
   "publisher": "mashed-potato-studios",
   "private": true,
@@ -21,6 +21,7 @@
     "onCommand:nuxtest.debugAllTests",
     "onView:nuxtest-sidebar",
     "onView:nuxtest-coverage",
+    "onView:nuxtest-test-history",
     "onLanguage:typescript",
     "onLanguage:vue"
   ],
@@ -140,6 +141,18 @@
         "title": "NuxTest: Clear Coverage Data",
         "icon": "$(clear-all)",
         "enablement": "true"
+      },
+      {
+        "command": "nuxtest.refreshTestHistory",
+        "title": "NuxTest: Refresh Test History",
+        "icon": "$(refresh)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.clearTestHistory",
+        "title": "NuxTest: Clear Test History",
+        "icon": "$(clear-all)",
+        "enablement": "true"
       }
     ],
     "viewsContainers": {
@@ -165,6 +178,13 @@
           "name": "Test Results",
           "icon": "resources/icon.svg",
           "contextualTitle": "NuxTest Test Results",
+          "type": "tree"
+        },
+        {
+          "id": "nuxtest-test-history",
+          "name": "Test History & Trends",
+          "icon": "resources/icon.svg",
+          "contextualTitle": "NuxTest Test History & Trends",
           "type": "tree"
         },
         {
@@ -205,6 +225,16 @@
         {
           "command": "nuxtest.refreshActions",
           "when": "view == nuxtest-actions",
+          "group": "navigation"
+        },
+        {
+          "command": "nuxtest.refreshTestHistory",
+          "when": "view == nuxtest-test-history",
+          "group": "navigation"
+        },
+        {
+          "command": "nuxtest.clearTestHistory",
+          "when": "view == nuxtest-test-history",
           "group": "navigation"
         }
       ],

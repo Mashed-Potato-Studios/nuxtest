@@ -9,11 +9,12 @@ NuxTest is a VS Code extension designed to simplify running tests for Nuxt.js ap
 - 🚀 Run all tests in the project
 - 🐞 Debug tests directly in VS Code
 - 📋 View test results directly in the editor's output panel
+- 📊 Test coverage visualization with line-by-line highlighting
+- 📈 Test history and trends tracking to identify flaky tests
 - ⚡ Test result caching for faster test runs
 - 🔧 Automatic E2E test fixes for common issues
 - 🧩 Create unit and E2E tests with templates
 - 🔄 Clear test cache when needed
-- 📊 Test coverage visualization with line-by-line highlighting
 
 ## Requirements
 
@@ -41,6 +42,8 @@ The extension provides the following commands:
 - `NuxTest: Run All Tests with Coverage` - Run all tests with coverage
 - `NuxTest: Show Coverage` - Show the coverage report
 - `NuxTest: Clear Coverage Data` - Clear coverage data
+- `NuxTest: Refresh Test History` - Refresh the test history view
+- `NuxTest: Clear Test History` - Clear all test history data
 
 ### Context Menu
 
@@ -59,6 +62,24 @@ NuxTest provides integrated debugging for your tests:
 - Automatically creates and updates VS Code launch configurations
 - Checks for required dependencies and offers to install them if missing
 - Provides a seamless debugging experience with breakpoints, variable inspection, and more
+
+### Test History and Trends
+
+NuxTest now includes test history and trends tracking:
+
+- Automatically records test results in a local database
+- View test run history with pass/fail status and duration
+- Identify flaky tests that alternate between passing and failing
+- See trends in test performance over time
+- Visualize pass rates and stability metrics for each test
+- Quickly navigate to problematic tests that need attention
+
+The Test History & Trends view categorizes tests as:
+
+- **Flaky**: Tests that frequently alternate between passing and failing
+- **Unstable**: Tests with low pass rates
+- **Mostly Stable**: Tests that pass most of the time but occasionally fail
+- **Stable**: Tests that consistently pass
 
 ### Test Caching
 

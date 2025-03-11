@@ -8,6 +8,7 @@ import {
 } from "./providers/TestResultsProvider";
 import { checkNuxtTestingDependencies } from "./utils/dependencyChecker";
 import * as testCache from "./utils/testCache";
+import { historyDatabase } from "./utils/historyDatabase";
 
 // Global cache object
 let globalTestCache = testCache.loadCache();
@@ -123,6 +124,35 @@ function findTestNameAtLine(
   return undefined;
 }
 
+// After running a test and getting the results, add this code to save to history
+async function saveTestResultsToHistory(
+  results: any[],
+  filePath: string
+): Promise<void> {
+  try {
+    // Map the test results to our history format
+    const historyResults = results.map((result) => ({
+      testName: result.name || "Unknown Test",
+      filePath,
+      status: (result.status === "passed"
+        ? "pass"
+        : result.status === "skipped"
+        ? "skip"
+        : "fail") as "pass" | "skip" | "fail",
+      duration: result.duration || 0,
+      errorMessage: result.error?.message,
+    }));
+
+    // Save to history database
+    await historyDatabase.saveTestResults(historyResults);
+
+    // Refresh the test history view
+    vscode.commands.executeCommand("nuxtest.refreshTestHistory");
+  } catch (error: any) {
+    console.error("Failed to save test results to history:", error);
+  }
+}
+
 /**
  * Run a Nuxt test at a specific line
  */
@@ -221,6 +251,11 @@ export async function runNuxtTest(
             outputChannel.appendLine(`Duration: ${testResults[0].duration}ms`);
           }
 
+          // After getting test results, add:
+          if (testResults && testResults.length > 0) {
+            await saveTestResultsToHistory(testResults, filePath);
+          }
+
           return;
         }
       }
@@ -311,6 +346,11 @@ export async function runNuxtTest(
       // Show output
       outputChannel.appendLine("\nTest passed! 🎉");
       outputChannel.appendLine(stdout);
+
+      // After getting test results, add:
+      if (result) {
+        await saveTestResultsToHistory([result], filePath);
+      }
     } else {
       // Test failed
       const filteredStderr = filterNuxtWarnings(stderr);
@@ -345,6 +385,11 @@ export async function runNuxtTest(
       if (filteredStderr) {
         outputChannel.appendLine("\nErrors:");
         outputChannel.appendLine(filteredStderr);
+      }
+
+      // After getting test results, add:
+      if (result) {
+        await saveTestResultsToHistory([result], filePath);
       }
     }
   } catch (error) {
@@ -422,6 +467,11 @@ export async function runNuxtTestFile(
           `Failed: ${cachedResults.filter((r) => r.status === "failed").length}`
         );
 
+        // After getting test results, add:
+        if (cachedResults && cachedResults.length > 0) {
+          await saveTestResultsToHistory(cachedResults, filePath);
+        }
+
         return;
       }
     }
@@ -486,6 +536,11 @@ export async function runNuxtTestFile(
       // Show output
       outputChannel.appendLine("\nAll tests passed! 🎉");
       outputChannel.appendLine(stdout);
+
+      // After getting test results, add:
+      if (results && results.length > 0) {
+        await saveTestResultsToHistory(results, filePath);
+      }
     } else {
       // Some tests failed
       const filteredStderr = filterNuxtWarnings(stderr);
@@ -502,6 +557,11 @@ export async function runNuxtTestFile(
       if (filteredStderr) {
         outputChannel.appendLine("\nErrors:");
         outputChannel.appendLine(filteredStderr);
+      }
+
+      // After getting test results, add:
+      if (results && results.length > 0) {
+        await saveTestResultsToHistory(results, filePath);
       }
     }
   } catch (error) {
@@ -648,6 +708,11 @@ export async function runAllNuxtTests(): Promise<void> {
           ).length;
           cachedCount++;
 
+          // After getting test results, add:
+          if (cachedResults && cachedResults.length > 0) {
+            await saveTestResultsToHistory(cachedResults, filePath);
+          }
+
           continue;
         }
       }
@@ -685,12 +750,22 @@ export async function runAllNuxtTests(): Promise<void> {
 
         if (exitCode === 0) {
           outputChannel.appendLine("✅ All tests passed");
+
+          // After getting test results, add:
+          if (results && results.length > 0) {
+            await saveTestResultsToHistory(results, filePath);
+          }
         } else {
           const filteredStderr = filterNuxtWarnings(stderr);
           outputChannel.appendLine("❌ Some tests failed");
           if (filteredStderr) {
             outputChannel.appendLine("Errors:");
             outputChannel.appendLine(filteredStderr);
+          }
+
+          // After getting test results, add:
+          if (results && results.length > 0) {
+            await saveTestResultsToHistory(results, filePath);
           }
         }
       } catch (error) {
