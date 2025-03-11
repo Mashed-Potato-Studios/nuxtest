@@ -1,1 +1,47 @@
 node_modules
+# Dependencies
+.pnp
+.pnp.js
+yarn.lock
+package-lock.json
+
+# Testing
+coverage
+.nyc_output
+
+# Build
+dist
+build
+.nuxt
+.output
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Cache
+.cache
+.npm
+.eslintcache
