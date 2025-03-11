@@ -73,8 +73,8 @@ export function activate(context: vscode.ExtensionContext) {
   );
   vscode.window.registerTreeDataProvider(
     "nuxtest-test-results",
-    testResultsProvider
-  );
+      testResultsProvider
+    );
   vscode.window.registerTreeDataProvider("nuxtest-actions", actionsProvider);
   vscode.window.registerTreeDataProvider("nuxtest-coverage", coverageProvider);
   vscode.window.registerTreeDataProvider(
