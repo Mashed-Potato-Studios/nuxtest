@@ -1,0 +1,277 @@
+{
+  "name": "@mashed-potato-studios/nuxtest",
+  "displayName": "NuxTest - Nuxt Testing Extension",
+  "version": "0.3.0",
+  "description": "VSCode extension for running Nuxt.js tests",
+  "publisher": "mashed-potato-studios",
+  "private": true,
+  "engines": {
+    "vscode": "^1.71.0"
+  },
+  "categories": [
+    "Testing",
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:nuxtest.runTest",
+    "onCommand:nuxtest.runAllTests",
+    "onCommand:nuxtest.runTestFile",
+    "onView:nuxtest-sidebar",
+    "onView:nuxtest-coverage",
+    "onLanguage:typescript",
+    "onLanguage:vue"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "nuxtest.runTest",
+        "title": "NuxTest: Run Test at Cursor",
+        "icon": "$(play)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.runAllTests",
+        "title": "NuxTest: Run All Tests",
+        "icon": "$(run-all)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.runTestFile",
+        "title": "NuxTest: Run Current Test File",
+        "icon": "$(play)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.refreshTests",
+        "title": "NuxTest: Refresh Test Explorer",
+        "icon": "$(refresh)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.createTest",
+        "title": "NuxTest: Create Test File",
+        "icon": "$(new-file)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.createUnitTest",
+        "title": "NuxTest: Create Unit Test",
+        "icon": "$(beaker)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.createE2ETest",
+        "title": "NuxTest: Create E2E Test",
+        "icon": "$(globe)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.setupTestEnvironment",
+        "title": "NuxTest: Setup Test Environment",
+        "icon": "$(gear)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.generateTestForComponent",
+        "title": "NuxTest: Generate Test for Component",
+        "icon": "$(wand)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.installPlaywrightBrowsers",
+        "title": "NuxTest: Install Playwright Browsers",
+        "icon": "$(browser)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.fixE2ETests",
+        "title": "NuxTest: Fix E2E Tests",
+        "icon": "$(wrench)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.refreshActions",
+        "title": "NuxTest: Refresh Actions",
+        "icon": "$(refresh)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.runTestWithCoverage",
+        "title": "NuxTest: Run Test with Coverage",
+        "icon": "$(graph)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.runAllTestsWithCoverage",
+        "title": "NuxTest: Run All Tests with Coverage",
+        "icon": "$(graph)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.showCoverage",
+        "title": "NuxTest: Show Coverage",
+        "icon": "$(graph)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.clearCoverageData",
+        "title": "NuxTest: Clear Coverage Data",
+        "icon": "$(clear-all)",
+        "enablement": "true"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "nuxtest-sidebar",
+          "title": "NuxTest",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "nuxtest-sidebar": [
+        {
+          "id": "nuxtest-test-explorer",
+          "name": "Test Explorer",
+          "icon": "resources/icon.svg",
+          "contextualTitle": "NuxTest Test Explorer",
+          "type": "tree"
+        },
+        {
+          "id": "nuxtest-test-results",
+          "name": "Test Results",
+          "icon": "resources/icon.svg",
+          "contextualTitle": "NuxTest Test Results",
+          "type": "tree"
+        },
+        {
+          "id": "nuxtest-actions",
+          "name": "Actions",
+          "icon": "resources/icon.svg",
+          "contextualTitle": "NuxTest Actions",
+          "type": "tree"
+        },
+        {
+          "id": "nuxtest-coverage",
+          "name": "Coverage"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "nuxtest.refreshTests",
+          "when": "view == nuxtest-test-explorer",
+          "group": "navigation"
+        },
+        {
+          "command": "nuxtest.createTest",
+          "when": "view == nuxtest-test-explorer",
+          "group": "navigation"
+        },
+        {
+          "command": "nuxtest.runAllTests",
+          "when": "view == nuxtest-test-explorer",
+          "group": "navigation"
+        },
+        {
+          "command": "nuxtest.refreshActions",
+          "when": "view == nuxtest-actions",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "nuxtest.runTest",
+          "when": "view == nuxtest-test-explorer && viewItem == test",
+          "group": "inline@1"
+        },
+        {
+          "command": "nuxtest.runTestFile",
+          "when": "view == nuxtest-test-explorer && viewItem == file",
+          "group": "inline@1"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "nuxtest.runTest",
+          "when": "editorTextFocus && (editorLangId == 'typescript' || editorLangId == 'vue') && resourceFilename =~ /.*\\.spec\\.(ts|js|vue)$/",
+          "group": "nuxtest@1"
+        },
+        {
+          "command": "nuxtest.runTestFile",
+          "when": "editorTextFocus && (editorLangId == 'typescript' || editorLangId == 'vue') && resourceFilename =~ /.*\\.spec\\.(ts|js|vue)$/",
+          "group": "nuxtest@2"
+        },
+        {
+          "command": "nuxtest.generateTestForComponent",
+          "when": "editorTextFocus && editorLangId == 'vue'",
+          "group": "nuxtest@3"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "nuxtest.runTestFile",
+          "when": "resourceFilename =~ /.*\\.spec\\.(ts|js|vue)$/",
+          "group": "nuxtest@1"
+        },
+        {
+          "command": "nuxtest.createTest",
+          "when": "explorerResourceIsFolder",
+          "group": "nuxtest@2"
+        },
+        {
+          "command": "nuxtest.generateTestForComponent",
+          "when": "resourceExtname == .vue",
+          "group": "nuxtest@3"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "NODE_ENV=development tsup",
+    "watch": "NODE_ENV=development tsup --watch",
+    "package": "NODE_ENV=production tsup && vsce package",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/bahamut.git",
+    "directory": "packages/utils/nuxtest"
+  },
+  "keywords": [
+    "nuxt",
+    "testing",
+    "vitest",
+    "vscode-extension",
+    "test-runner"
+  ],
+  "author": "Mashed Potato Studios",
+  "license": "MIT",
+  "dependencies": {
+    "@nuxt/test-utils": "^3.11.0",
+    "@vue/test-utils": "^2.4.4",
+    "execa": "^7.1.1",
+    "happy-dom": "^13.3.8",
+    "playwright-core": "^1.41.2"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.x",
+    "@types/vscode": "^1.71.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "@vscode/vsce": "^2.24.0",
+    "eslint": "^8.39.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.1.6",
+    "vitest": "^3.0.8"
+  }
+}
