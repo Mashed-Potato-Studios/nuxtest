@@ -26,15 +26,75 @@ export class GenerateTestForComponentCommand extends BaseCommand {
       return undefined;
     }
 
-    // Find Vue component files
+    // Find Vue component files with expanded search patterns
     const rootPath = workspaceFolders[0].uri.fsPath;
-    const componentFiles = await vscode.workspace.findFiles(
+
+    // First try the standard Nuxt directories
+    let componentFiles = await vscode.workspace.findFiles(
       "{components,pages,layouts}/**/*.vue",
       "{node_modules,.nuxt,dist}/**"
     );
 
+    // If no files found, try a broader search
     if (componentFiles.length === 0) {
-      this.showError("No Vue component files found");
+      componentFiles = await vscode.workspace.findFiles(
+        "**/*.vue",
+        "{node_modules,.nuxt,dist}/**"
+      );
+    }
+
+    if (componentFiles.length === 0) {
+      // Show a more helpful error message with guidance
+      const createComponent = await vscode.window.showErrorMessage(
+        "No Vue component files found in your project. Would you like to create a new component?",
+        "Yes",
+        "No"
+      );
+
+      if (createComponent === "Yes") {
+        // Prompt for component name and location
+        const componentName = await vscode.window.showInputBox({
+          prompt: "Enter a name for your new component",
+          placeHolder: "MyComponent",
+        });
+
+        if (!componentName) {
+          return undefined;
+        }
+
+        // Create components directory if it doesn't exist
+        const componentsDir = path.join(rootPath, "components");
+        if (!fs.existsSync(componentsDir)) {
+          fs.mkdirSync(componentsDir, { recursive: true });
+        }
+
+        // Create the component file
+        const componentFilePath = path.join(
+          componentsDir,
+          `${componentName}.vue`
+        );
+        const componentContent =
+          this.generateVueComponentTemplate(componentName);
+        fs.writeFileSync(componentFilePath, componentContent);
+
+        // Open the new component file
+        const document = await vscode.workspace.openTextDocument(
+          componentFilePath
+        );
+        await vscode.window.showTextDocument(document);
+
+        // Ask if the user wants to generate a test for this new component
+        const generateTest = await vscode.window.showInformationMessage(
+          `Component ${componentName}.vue created. Generate a test for it?`,
+          "Yes",
+          "No"
+        );
+
+        if (generateTest === "Yes") {
+          return componentFilePath;
+        }
+      }
+
       return undefined;
     }
 
@@ -291,5 +351,41 @@ ${props
       .split(/[-_]/)
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join("");
+  }
+
+  // Generate a template for a new Vue component
+  private generateVueComponentTemplate(componentName: string): string {
+    return `<template>
+  <div class="${this.kebabCase(componentName)}">
+    <h2>{{ title }}</h2>
+    <slot></slot>
+  </div>
+</template>
+
+<script setup>
+defineProps({
+  title: {
+    type: String,
+    default: '${componentName}'
+  }
+});
+</script>
+
+<style scoped>
+.${this.kebabCase(componentName)} {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+</style>
+`;
+  }
+
+  // Convert a string to kebab-case
+  private kebabCase(str: string): string {
+    return str
+      .replace(/([a-z])([A-Z])/g, "$1-$2")
+      .replace(/[\s_]+/g, "-")
+      .toLowerCase();
   }
 }

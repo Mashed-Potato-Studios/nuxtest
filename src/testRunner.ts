@@ -127,10 +127,41 @@ function findTestNameAtLine(
  * Run a Nuxt test at a specific line
  */
 export async function runNuxtTest(
-  filePath: string,
-  lineNumber: number
+  filePathOrItem: string | any,
+  lineNumber?: number
 ): Promise<void> {
   try {
+    // Handle TestItem objects
+    let filePath: string;
+    let testLineNumber: number = lineNumber || 1;
+    let testName: string | undefined;
+
+    if (typeof filePathOrItem === "string") {
+      filePath = filePathOrItem;
+    } else if (filePathOrItem && filePathOrItem.uri) {
+      // Handle VS Code TestItem
+      filePath = filePathOrItem.uri.fsPath;
+
+      // If the item has a range, use its start line
+      if (filePathOrItem.range) {
+        testLineNumber = filePathOrItem.range.start.line + 1; // Convert to 1-based line number
+      }
+
+      // If the item has a label, use it as the test name
+      if (filePathOrItem.label) {
+        testName = filePathOrItem.label;
+      }
+    } else if (filePathOrItem && filePathOrItem.filePath) {
+      // Handle our own test item format
+      filePath = filePathOrItem.filePath;
+      testLineNumber = filePathOrItem.lineNumber || testLineNumber;
+      testName = filePathOrItem.name;
+    } else {
+      throw new Error(
+        "Invalid test item. Expected a file path or a test item object."
+      );
+    }
+
     const nuxtRoot = findNuxtRoot(filePath);
     if (!nuxtRoot) {
       vscode.window.showErrorMessage(
@@ -145,32 +176,43 @@ export async function runNuxtTest(
       return;
     }
 
-    // Find the test name at the specified line
-    const testName = findTestNameAtLine(filePath, lineNumber);
+    // Find the test name at the specified line if not already provided
     if (!testName) {
-      vscode.window.showErrorMessage(
-        "Could not find a test at the specified line."
-      );
-      return;
+      testName = findTestNameAtLine(filePath, testLineNumber);
+      if (!testName) {
+        vscode.window.showErrorMessage(
+          "Could not find a test at the specified line."
+        );
+        return;
+      }
     }
 
     // Check if we can use cached results
     const shouldRun = testCache.shouldRunTest(filePath, globalTestCache);
     if (!shouldRun) {
-      const cachedResults = testCache.getCachedResults(filePath, globalTestCache);
+      const cachedResults = testCache.getCachedResults(
+        filePath,
+        globalTestCache
+      );
       if (cachedResults) {
         // Filter results for the specific test
-        const testResults = cachedResults.filter(result => result.name === testName);
+        const testResults = cachedResults.filter(
+          (result) => result.name === testName
+        );
         if (testResults.length > 0) {
           // Show notification that we're using cached results
-          vscode.window.showInformationMessage(`Using cached results for test: ${testName}`);
-          
+          vscode.window.showInformationMessage(
+            `Using cached results for test: ${testName}`
+          );
+
           // Update the test results view
           testResultsProvider.addResults(testResults);
-          
+
           // Show the results in the output channel
           const outputChannel = getOutputChannel();
-          outputChannel.appendLine(`\n[NuxTest] Using cached results for test: ${testName}`);
+          outputChannel.appendLine(
+            `\n[NuxTest] Using cached results for test: ${testName}`
+          );
           outputChannel.appendLine(`Status: ${testResults[0].status}`);
           if (testResults[0].message) {
             outputChannel.appendLine(`Message: ${testResults[0].message}`);
@@ -178,7 +220,7 @@ export async function runNuxtTest(
           if (testResults[0].duration) {
             outputChannel.appendLine(`Duration: ${testResults[0].duration}ms`);
           }
-          
+
           return;
         }
       }
@@ -212,7 +254,7 @@ export async function runNuxtTest(
       name: testName,
       status: "running",
       filePath,
-      lineNumber,
+      lineNumber: testLineNumber,
     });
 
     // Run the test
@@ -246,7 +288,7 @@ export async function runNuxtTest(
         status: "passed",
         duration,
         filePath,
-        lineNumber,
+        lineNumber: testLineNumber,
       };
 
       // Update test results view
@@ -260,7 +302,11 @@ export async function runNuxtTest(
       );
 
       // Update the cache
-      globalTestCache = testCache.updateCache(filePath, [result], globalTestCache);
+      globalTestCache = testCache.updateCache(
+        filePath,
+        [result],
+        globalTestCache
+      );
 
       // Show output
       outputChannel.appendLine("\nTest passed! 🎉");
@@ -273,7 +319,7 @@ export async function runNuxtTest(
         status: "failed",
         message: filteredStderr || stdout,
         filePath,
-        lineNumber,
+        lineNumber: testLineNumber,
       };
 
       // Update test results view
@@ -287,7 +333,11 @@ export async function runNuxtTest(
       );
 
       // Update the cache
-      globalTestCache = testCache.updateCache(filePath, [result], globalTestCache);
+      globalTestCache = testCache.updateCache(
+        filePath,
+        [result],
+        globalTestCache
+      );
 
       // Show output
       outputChannel.appendLine("\nTest failed! ❌");
@@ -306,8 +356,27 @@ export async function runNuxtTest(
 /**
  * Run all tests in a Nuxt test file
  */
-export async function runNuxtTestFile(filePath: string): Promise<void> {
+export async function runNuxtTestFile(
+  filePathOrItem: string | any
+): Promise<void> {
   try {
+    // Handle TestItem objects
+    let filePath: string;
+
+    if (typeof filePathOrItem === "string") {
+      filePath = filePathOrItem;
+    } else if (filePathOrItem && filePathOrItem.uri) {
+      // Handle VS Code TestItem
+      filePath = filePathOrItem.uri.fsPath;
+    } else if (filePathOrItem && filePathOrItem.filePath) {
+      // Handle our own test item format
+      filePath = filePathOrItem.filePath;
+    } else {
+      throw new Error(
+        "Invalid test item. Expected a file path or a test item object."
+      );
+    }
+
     const nuxtRoot = findNuxtRoot(filePath);
     if (!nuxtRoot) {
       vscode.window.showErrorMessage(
@@ -325,21 +394,34 @@ export async function runNuxtTestFile(filePath: string): Promise<void> {
     // Check if we can use cached results
     const shouldRun = testCache.shouldRunTest(filePath, globalTestCache);
     if (!shouldRun) {
-      const cachedResults = testCache.getCachedResults(filePath, globalTestCache);
+      const cachedResults = testCache.getCachedResults(
+        filePath,
+        globalTestCache
+      );
       if (cachedResults && cachedResults.length > 0) {
         // Show notification that we're using cached results
-        vscode.window.showInformationMessage(`Using cached results for file: ${path.basename(filePath)}`);
-        
+        vscode.window.showInformationMessage(
+          `Using cached results for file: ${path.basename(filePath)}`
+        );
+
         // Update the test results view
         testResultsProvider.addResults(cachedResults);
-        
+
         // Show the results in the output channel
         const outputChannel = getOutputChannel();
-        outputChannel.appendLine(`\n[NuxTest] Using cached results for file: ${path.basename(filePath)}`);
+        outputChannel.appendLine(
+          `\n[NuxTest] Using cached results for file: ${path.basename(
+            filePath
+          )}`
+        );
         outputChannel.appendLine(`Total tests: ${cachedResults.length}`);
-        outputChannel.appendLine(`Passed: ${cachedResults.filter(r => r.status === 'passed').length}`);
-        outputChannel.appendLine(`Failed: ${cachedResults.filter(r => r.status === 'failed').length}`);
-        
+        outputChannel.appendLine(
+          `Passed: ${cachedResults.filter((r) => r.status === "passed").length}`
+        );
+        outputChannel.appendLine(
+          `Failed: ${cachedResults.filter((r) => r.status === "failed").length}`
+        );
+
         return;
       }
     }
@@ -423,9 +505,7 @@ export async function runNuxtTestFile(filePath: string): Promise<void> {
       }
     }
   } catch (error) {
-    vscode.window.showErrorMessage(
-      `Failed to run tests: ${error.message}`
-    );
+    vscode.window.showErrorMessage(`Failed to run tests: ${error.message}`);
     getOutputChannel().appendLine(`Error: ${error.message}`);
   }
 }
@@ -485,15 +565,15 @@ export async function runAllNuxtTests(): Promise<void> {
 
     // Ask if user wants to use cached results where available
     const useCachedResults = await vscode.window.showQuickPick(
-      ['Yes, use cached results where available', 'No, run all tests fresh'],
-      { placeHolder: 'Do you want to use cached results where available?' }
+      ["Yes, use cached results where available", "No, run all tests fresh"],
+      { placeHolder: "Do you want to use cached results where available?" }
     );
 
     if (!useCachedResults) {
       return; // User cancelled
     }
 
-    const useCache = useCachedResults.startsWith('Yes');
+    const useCache = useCachedResults.startsWith("Yes");
 
     // Clear previous results
     testResultsProvider.clearResults();
@@ -540,23 +620,34 @@ export async function runAllNuxtTests(): Promise<void> {
       const filePath = testFile.fsPath;
       const relativePath = path.relative(rootPath, filePath);
 
-      outputChannel.appendLine(`\n[${i + 1}/${testFiles.length}] Running tests in ${relativePath}`);
+      outputChannel.appendLine(
+        `\n[${i + 1}/${testFiles.length}] Running tests in ${relativePath}`
+      );
 
       // Check if we can use cached results
       if (useCache && !testCache.shouldRunTest(filePath, globalTestCache)) {
-        const cachedResults = testCache.getCachedResults(filePath, globalTestCache);
+        const cachedResults = testCache.getCachedResults(
+          filePath,
+          globalTestCache
+        );
         if (cachedResults && cachedResults.length > 0) {
           outputChannel.appendLine(`Using cached results for ${relativePath}`);
-          
+
           // Add cached results to overall results
           allResults = [...allResults, ...cachedResults];
-          
+
           // Update counts
-          passedCount += cachedResults.filter(r => r.status === 'passed').length;
-          failedCount += cachedResults.filter(r => r.status === 'failed').length;
-          skippedCount += cachedResults.filter(r => r.status === 'skipped').length;
+          passedCount += cachedResults.filter(
+            (r) => r.status === "passed"
+          ).length;
+          failedCount += cachedResults.filter(
+            (r) => r.status === "failed"
+          ).length;
+          skippedCount += cachedResults.filter(
+            (r) => r.status === "skipped"
+          ).length;
           cachedCount++;
-          
+
           continue;
         }
       }
@@ -576,17 +667,21 @@ export async function runAllNuxtTests(): Promise<void> {
 
         // Parse test results
         const results = parseTestResults(stdout, filePath);
-        
+
         // Add to overall results
         allResults = [...allResults, ...results];
-        
+
         // Update counts
-        passedCount += results.filter(r => r.status === 'passed').length;
-        failedCount += results.filter(r => r.status === 'failed').length;
-        skippedCount += results.filter(r => r.status === 'skipped').length;
+        passedCount += results.filter((r) => r.status === "passed").length;
+        failedCount += results.filter((r) => r.status === "failed").length;
+        skippedCount += results.filter((r) => r.status === "skipped").length;
 
         // Update the cache
-        globalTestCache = testCache.updateCache(filePath, results, globalTestCache);
+        globalTestCache = testCache.updateCache(
+          filePath,
+          results,
+          globalTestCache
+        );
 
         if (exitCode === 0) {
           outputChannel.appendLine("✅ All tests passed");
@@ -631,7 +726,9 @@ export async function runAllNuxtTests(): Promise<void> {
 
     // Show cache usage summary
     if (useCache && cachedCount > 0) {
-      outputChannel.appendLine(`\n📊 Cache usage: ${cachedCount} of ${testFiles.length} files used cached results`);
+      outputChannel.appendLine(
+        `\n📊 Cache usage: ${cachedCount} of ${testFiles.length} files used cached results`
+      );
     }
 
     outputChannel.appendLine(`\n📊 Test summary:`);

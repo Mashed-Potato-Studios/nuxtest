@@ -24,20 +24,48 @@ function getCacheFilePath(): string {
 }
 
 // Get the storage path for the extension
+let globalStoragePath: string | null = null;
+
+export function initializeStoragePath(context: vscode.ExtensionContext): void {
+  globalStoragePath = context.globalStoragePath;
+
+  // Create the cache directory if it doesn't exist
+  if (!fs.existsSync(globalStoragePath)) {
+    fs.mkdirSync(globalStoragePath, { recursive: true });
+  }
+
+  // Create a specific cache subdirectory
+  const cachePath = path.join(globalStoragePath, "cache");
+  if (!fs.existsSync(cachePath)) {
+    fs.mkdirSync(cachePath, { recursive: true });
+  }
+}
+
 function getStoragePath(): string {
-  const context = vscode.extensions.getExtension(
-    "mashed-potato-studios.nuxtest"
-  )?.extensionPath;
-  if (!context) {
-    throw new Error("Could not get extension context");
+  if (!globalStoragePath) {
+    // Try to get the extension context
+    const extension = vscode.extensions.getExtension(
+      "mashed-potato-studios.nuxtest"
+    );
+
+    if (extension && extension.isActive) {
+      // If the extension is active, we can try to use the extensionPath as a fallback
+      const extensionPath = extension.extensionPath;
+      const fallbackPath = path.join(extensionPath, ".cache");
+
+      if (!fs.existsSync(fallbackPath)) {
+        fs.mkdirSync(fallbackPath, { recursive: true });
+      }
+
+      return fallbackPath;
+    }
+
+    throw new Error(
+      "Could not get extension context. Please restart VS Code and try again."
+    );
   }
 
-  const storagePath = path.join(context, ".cache");
-  if (!fs.existsSync(storagePath)) {
-    fs.mkdirSync(storagePath, { recursive: true });
-  }
-
-  return storagePath;
+  return path.join(globalStoragePath, "cache");
 }
 
 // Load the cache from disk

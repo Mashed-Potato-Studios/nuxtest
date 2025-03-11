@@ -16,6 +16,9 @@
     "onCommand:nuxtest.runTest",
     "onCommand:nuxtest.runAllTests",
     "onCommand:nuxtest.runTestFile",
+    "onCommand:nuxtest.debugTest",
+    "onCommand:nuxtest.debugTestFile",
+    "onCommand:nuxtest.debugAllTests",
     "onView:nuxtest-sidebar",
     "onView:nuxtest-coverage",
     "onLanguage:typescript",
@@ -40,6 +43,24 @@
         "command": "nuxtest.runTestFile",
         "title": "NuxTest: Run Current Test File",
         "icon": "$(play)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.debugTest",
+        "title": "NuxTest: Debug Test at Cursor",
+        "icon": "$(debug-alt)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.debugTestFile",
+        "title": "NuxTest: Debug Current Test File",
+        "icon": "$(debug-alt)",
+        "enablement": "true"
+      },
+      {
+        "command": "nuxtest.debugAllTests",
+        "title": "NuxTest: Debug All Tests",
+        "icon": "$(debug-alt)",
         "enablement": "true"
       },
       {
@@ -177,6 +198,11 @@
           "group": "navigation"
         },
         {
+          "command": "nuxtest.debugAllTests",
+          "when": "view == nuxtest-test-explorer",
+          "group": "navigation"
+        },
+        {
           "command": "nuxtest.refreshActions",
           "when": "view == nuxtest-actions",
           "group": "navigation"
@@ -189,9 +215,19 @@
           "group": "inline@1"
         },
         {
+          "command": "nuxtest.debugTest",
+          "when": "view == nuxtest-test-explorer && viewItem == test",
+          "group": "inline@2"
+        },
+        {
           "command": "nuxtest.runTestFile",
           "when": "view == nuxtest-test-explorer && viewItem == file",
           "group": "inline@1"
+        },
+        {
+          "command": "nuxtest.debugTestFile",
+          "when": "view == nuxtest-test-explorer && viewItem == file",
+          "group": "inline@2"
         }
       ],
       "editor/context": [
@@ -201,14 +237,24 @@
           "group": "nuxtest@1"
         },
         {
-          "command": "nuxtest.runTestFile",
+          "command": "nuxtest.debugTest",
           "when": "editorTextFocus && (editorLangId == 'typescript' || editorLangId == 'vue') && resourceFilename =~ /.*\\.spec\\.(ts|js|vue)$/",
           "group": "nuxtest@2"
         },
         {
+          "command": "nuxtest.runTestFile",
+          "when": "editorTextFocus && (editorLangId == 'typescript' || editorLangId == 'vue') && resourceFilename =~ /.*\\.spec\\.(ts|js|vue)$/",
+          "group": "nuxtest@3"
+        },
+        {
+          "command": "nuxtest.debugTestFile",
+          "when": "editorTextFocus && (editorLangId == 'typescript' || editorLangId == 'vue') && resourceFilename =~ /.*\\.spec\\.(ts|js|vue)$/",
+          "group": "nuxtest@4"
+        },
+        {
           "command": "nuxtest.generateTestForComponent",
           "when": "editorTextFocus && editorLangId == 'vue'",
-          "group": "nuxtest@3"
+          "group": "nuxtest@5"
         }
       ],
       "explorer/context": [
@@ -218,14 +264,19 @@
           "group": "nuxtest@1"
         },
         {
+          "command": "nuxtest.debugTestFile",
+          "when": "resourceFilename =~ /.*\\.spec\\.(ts|js|vue)$/",
+          "group": "nuxtest@2"
+        },
+        {
           "command": "nuxtest.createTest",
           "when": "explorerResourceIsFolder",
-          "group": "nuxtest@2"
+          "group": "nuxtest@3"
         },
         {
           "command": "nuxtest.generateTestForComponent",
           "when": "resourceExtname == .vue",
-          "group": "nuxtest@3"
+          "group": "nuxtest@4"
         }
       ]
     }

@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as vscode from "vscode";
+import { execa } from "execa";
 
 /**
  * Find the Nuxt project root directory
@@ -132,4 +133,73 @@ export function getSourceFilePath(testFilePath: string): string | undefined {
   }
 
   return path.join(dirName, sourceFileName);
+}
+
+/**
+ * Check if Vitest is installed in the project
+ * @param projectRoot The project root directory
+ * @returns True if Vitest is installed, false otherwise
+ */
+export async function ensureVitestInstalled(
+  projectRoot: string
+): Promise<boolean> {
+  const vitestPath = path.join(projectRoot, "node_modules", "vitest");
+
+  if (fs.existsSync(vitestPath)) {
+    return true;
+  }
+
+  // Vitest is not installed, ask the user if they want to install it
+  const installVitest = await vscode.window.showWarningMessage(
+    "Vitest is not installed in this project. Install it now?",
+    "Yes",
+    "No"
+  );
+
+  if (installVitest !== "Yes") {
+    return false;
+  }
+
+  // Show progress notification
+  return await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: "Installing Vitest",
+      cancellable: false,
+    },
+    async (progress) => {
+      try {
+        progress.report({ message: "Installing Vitest..." });
+
+        // Create an output channel to show installation progress
+        const outputChannel = vscode.window.createOutputChannel(
+          "NuxTest Vitest Installation"
+        );
+        outputChannel.appendLine("Installing Vitest...");
+        outputChannel.show();
+
+        // Install Vitest
+        const { stdout, stderr } = await execa(
+          "npm",
+          ["install", "--save-dev", "vitest", "@vitest/coverage-v8"],
+          { cwd: projectRoot }
+        );
+
+        outputChannel.appendLine(stdout);
+        if (stderr) {
+          outputChannel.appendLine(stderr);
+        }
+
+        outputChannel.appendLine("Vitest installed successfully!");
+        vscode.window.showInformationMessage("Vitest installed successfully!");
+
+        return true;
+      } catch (error) {
+        vscode.window.showErrorMessage(
+          `Failed to install Vitest: ${error.message}`
+        );
+        return false;
+      }
+    }
+  );
 }

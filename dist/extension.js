@@ -36,8 +36,8 @@ var require_windows = __commonJS({
     "use strict";
     module2.exports = isexe;
     isexe.sync = sync;
-    var fs15 = require("fs");
-    function checkPathExt(path20, options) {
+    var fs18 = require("fs");
+    function checkPathExt(path23, options) {
       var pathext = options.pathExt !== void 0 ? options.pathExt : process.env.PATHEXT;
       if (!pathext) {
         return true;
@@ -48,25 +48,25 @@ var require_windows = __commonJS({
       }
       for (var i = 0; i < pathext.length; i++) {
         var p = pathext[i].toLowerCase();
-        if (p && path20.substr(-p.length).toLowerCase() === p) {
+        if (p && path23.substr(-p.length).toLowerCase() === p) {
           return true;
         }
       }
       return false;
     }
-    function checkStat(stat, path20, options) {
+    function checkStat(stat, path23, options) {
       if (!stat.isSymbolicLink() && !stat.isFile()) {
         return false;
       }
-      return checkPathExt(path20, options);
+      return checkPathExt(path23, options);
     }
-    function isexe(path20, options, cb) {
-      fs15.stat(path20, function(er, stat) {
-        cb(er, er ? false : checkStat(stat, path20, options));
+    function isexe(path23, options, cb) {
+      fs18.stat(path23, function(er, stat) {
+        cb(er, er ? false : checkStat(stat, path23, options));
       });
     }
-    function sync(path20, options) {
-      return checkStat(fs15.statSync(path20), path20, options);
+    function sync(path23, options) {
+      return checkStat(fs18.statSync(path23), path23, options);
     }
   }
 });
@@ -77,14 +77,14 @@ var require_mode = __commonJS({
     "use strict";
     module2.exports = isexe;
     isexe.sync = sync;
-    var fs15 = require("fs");
-    function isexe(path20, options, cb) {
-      fs15.stat(path20, function(er, stat) {
+    var fs18 = require("fs");
+    function isexe(path23, options, cb) {
+      fs18.stat(path23, function(er, stat) {
         cb(er, er ? false : checkStat(stat, options));
       });
     }
-    function sync(path20, options) {
-      return checkStat(fs15.statSync(path20), options);
+    function sync(path23, options) {
+      return checkStat(fs18.statSync(path23), options);
     }
     function checkStat(stat, options) {
       return stat.isFile() && checkMode(stat, options);
@@ -109,7 +109,7 @@ var require_mode = __commonJS({
 var require_isexe = __commonJS({
   "node_modules/isexe/index.js"(exports2, module2) {
     "use strict";
-    var fs15 = require("fs");
+    var fs18 = require("fs");
     var core;
     if (process.platform === "win32" || global.TESTING_WINDOWS) {
       core = require_windows();
@@ -118,7 +118,7 @@ var require_isexe = __commonJS({
     }
     module2.exports = isexe;
     isexe.sync = sync;
-    function isexe(path20, options, cb) {
+    function isexe(path23, options, cb) {
       if (typeof options === "function") {
         cb = options;
         options = {};
@@ -128,7 +128,7 @@ var require_isexe = __commonJS({
           throw new TypeError("callback not provided");
         }
         return new Promise(function(resolve, reject) {
-          isexe(path20, options || {}, function(er, is) {
+          isexe(path23, options || {}, function(er, is) {
             if (er) {
               reject(er);
             } else {
@@ -137,7 +137,7 @@ var require_isexe = __commonJS({
           });
         });
       }
-      core(path20, options || {}, function(er, is) {
+      core(path23, options || {}, function(er, is) {
         if (er) {
           if (er.code === "EACCES" || options && options.ignoreErrors) {
             er = null;
@@ -147,9 +147,9 @@ var require_isexe = __commonJS({
         cb(er, is);
       });
     }
-    function sync(path20, options) {
+    function sync(path23, options) {
       try {
-        return core.sync(path20, options || {});
+        return core.sync(path23, options || {});
       } catch (er) {
         if (options && options.ignoreErrors || er.code === "EACCES") {
           return false;
@@ -166,7 +166,7 @@ var require_which = __commonJS({
   "node_modules/which/which.js"(exports2, module2) {
     "use strict";
     var isWindows = process.platform === "win32" || process.env.OSTYPE === "cygwin" || process.env.OSTYPE === "msys";
-    var path20 = require("path");
+    var path23 = require("path");
     var COLON = isWindows ? ";" : ":";
     var isexe = require_isexe();
     var getNotFoundError = (cmd) => Object.assign(new Error(`not found: ${cmd}`), { code: "ENOENT" });
@@ -204,7 +204,7 @@ var require_which = __commonJS({
           return opt.all && found.length ? resolve(found) : reject(getNotFoundError(cmd));
         const ppRaw = pathEnv[i];
         const pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw;
-        const pCmd = path20.join(pathPart, cmd);
+        const pCmd = path23.join(pathPart, cmd);
         const p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
         resolve(subStep(p, i, 0));
       });
@@ -231,7 +231,7 @@ var require_which = __commonJS({
       for (let i = 0; i < pathEnv.length; i++) {
         const ppRaw = pathEnv[i];
         const pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw;
-        const pCmd = path20.join(pathPart, cmd);
+        const pCmd = path23.join(pathPart, cmd);
         const p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
         for (let j = 0; j < pathExt.length; j++) {
           const cur = p + pathExt[j];
@@ -279,7 +279,7 @@ var require_path_key = __commonJS({
 var require_resolveCommand = __commonJS({
   "node_modules/cross-spawn/lib/util/resolveCommand.js"(exports2, module2) {
     "use strict";
-    var path20 = require("path");
+    var path23 = require("path");
     var which = require_which();
     var getPathKey = require_path_key();
     function resolveCommandAttempt(parsed, withoutPathExt) {
@@ -297,7 +297,7 @@ var require_resolveCommand = __commonJS({
       try {
         resolved = which.sync(parsed.command, {
           path: env2[getPathKey({ env: env2 })],
-          pathExt: withoutPathExt ? path20.delimiter : void 0
+          pathExt: withoutPathExt ? path23.delimiter : void 0
         });
       } catch (e) {
       } finally {
@@ -306,7 +306,7 @@ var require_resolveCommand = __commonJS({
         }
       }
       if (resolved) {
-        resolved = path20.resolve(hasCustomCwd ? parsed.options.cwd : "", resolved);
+        resolved = path23.resolve(hasCustomCwd ? parsed.options.cwd : "", resolved);
       }
       return resolved;
     }
@@ -360,8 +360,8 @@ var require_shebang_command = __commonJS({
       if (!match) {
         return null;
       }
-      const [path20, argument] = match[0].replace(/#! ?/, "").split(" ");
-      const binary = path20.split("/").pop();
+      const [path23, argument] = match[0].replace(/#! ?/, "").split(" ");
+      const binary = path23.split("/").pop();
       if (binary === "env") {
         return argument;
       }
@@ -374,16 +374,16 @@ var require_shebang_command = __commonJS({
 var require_readShebang = __commonJS({
   "node_modules/cross-spawn/lib/util/readShebang.js"(exports2, module2) {
     "use strict";
-    var fs15 = require("fs");
+    var fs18 = require("fs");
     var shebangCommand = require_shebang_command();
     function readShebang(command) {
       const size = 150;
       const buffer = Buffer.alloc(size);
       let fd;
       try {
-        fd = fs15.openSync(command, "r");
-        fs15.readSync(fd, buffer, 0, size, 0);
-        fs15.closeSync(fd);
+        fd = fs18.openSync(command, "r");
+        fs18.readSync(fd, buffer, 0, size, 0);
+        fs18.closeSync(fd);
       } catch (e) {
       }
       return shebangCommand(buffer.toString());
@@ -396,7 +396,7 @@ var require_readShebang = __commonJS({
 var require_parse = __commonJS({
   "node_modules/cross-spawn/lib/parse.js"(exports2, module2) {
     "use strict";
-    var path20 = require("path");
+    var path23 = require("path");
     var resolveCommand = require_resolveCommand();
     var escape = require_escape();
     var readShebang = require_readShebang();
@@ -421,7 +421,7 @@ var require_parse = __commonJS({
       const needsShell = !isExecutableRegExp.test(commandFile);
       if (parsed.options.forceShell || needsShell) {
         const needsDoubleEscapeMetaChars = isCmdShimRegExp.test(commandFile);
-        parsed.command = path20.normalize(parsed.command);
+        parsed.command = path23.normalize(parsed.command);
         parsed.command = escape.command(parsed.command);
         parsed.args = parsed.args.map((arg) => escape.argument(arg, needsDoubleEscapeMetaChars));
         const shellCommand = [parsed.command].concat(parsed.args).join(" ");
@@ -876,7 +876,7 @@ __export(extension_exports, {
   deactivate: () => deactivate
 });
 module.exports = __toCommonJS(extension_exports);
-var vscode21 = __toESM(require("vscode"));
+var vscode24 = __toESM(require("vscode"));
 
 // src/providers/TestExplorerProvider.ts
 var vscode = __toESM(require("vscode"));
@@ -2822,12 +2822,53 @@ var GenerateTestForComponentCommand = class extends BaseCommand {
       return void 0;
     }
     const rootPath = workspaceFolders[0].uri.fsPath;
-    const componentFiles = await vscode10.workspace.findFiles(
+    let componentFiles = await vscode10.workspace.findFiles(
       "{components,pages,layouts}/**/*.vue",
       "{node_modules,.nuxt,dist}/**"
     );
     if (componentFiles.length === 0) {
-      this.showError("No Vue component files found");
+      componentFiles = await vscode10.workspace.findFiles(
+        "**/*.vue",
+        "{node_modules,.nuxt,dist}/**"
+      );
+    }
+    if (componentFiles.length === 0) {
+      const createComponent = await vscode10.window.showErrorMessage(
+        "No Vue component files found in your project. Would you like to create a new component?",
+        "Yes",
+        "No"
+      );
+      if (createComponent === "Yes") {
+        const componentName = await vscode10.window.showInputBox({
+          prompt: "Enter a name for your new component",
+          placeHolder: "MyComponent"
+        });
+        if (!componentName) {
+          return void 0;
+        }
+        const componentsDir = path8.join(rootPath, "components");
+        if (!fs6.existsSync(componentsDir)) {
+          fs6.mkdirSync(componentsDir, { recursive: true });
+        }
+        const componentFilePath = path8.join(
+          componentsDir,
+          `${componentName}.vue`
+        );
+        const componentContent = this.generateVueComponentTemplate(componentName);
+        fs6.writeFileSync(componentFilePath, componentContent);
+        const document = await vscode10.workspace.openTextDocument(
+          componentFilePath
+        );
+        await vscode10.window.showTextDocument(document);
+        const generateTest = await vscode10.window.showInformationMessage(
+          `Component ${componentName}.vue created. Generate a test for it?`,
+          "Yes",
+          "No"
+        );
+        if (generateTest === "Yes") {
+          return componentFilePath;
+        }
+      }
       return void 0;
     }
     const fileItems = componentFiles.map((file) => {
@@ -3005,6 +3046,37 @@ ${props.map((prop) => `        ${prop}: ${this.getDefaultValueForProp(prop)}`).j
   }
   pascalCase(str) {
     return str.split(/[-_]/).map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join("");
+  }
+  // Generate a template for a new Vue component
+  generateVueComponentTemplate(componentName) {
+    return `<template>
+  <div class="${this.kebabCase(componentName)}">
+    <h2>{{ title }}</h2>
+    <slot></slot>
+  </div>
+</template>
+
+<script setup>
+defineProps({
+  title: {
+    type: String,
+    default: '${componentName}'
+  }
+});
+</script>
+
+<style scoped>
+.${this.kebabCase(componentName)} {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+</style>
+`;
+  }
+  // Convert a string to kebab-case
+  kebabCase(str) {
+    return str.replace(/([a-z])([A-Z])/g, "$1-$2").replace(/[\s_]+/g, "-").toLowerCase();
   }
 };
 
@@ -3463,19 +3535,35 @@ function getCacheFilePath() {
   const storagePath = getStoragePath();
   return path10.join(storagePath, "nuxtest-cache.json");
 }
+var globalStoragePath = null;
+function initializeStoragePath(context) {
+  globalStoragePath = context.globalStoragePath;
+  if (!fs8.existsSync(globalStoragePath)) {
+    fs8.mkdirSync(globalStoragePath, { recursive: true });
+  }
+  const cachePath = path10.join(globalStoragePath, "cache");
+  if (!fs8.existsSync(cachePath)) {
+    fs8.mkdirSync(cachePath, { recursive: true });
+  }
+}
 function getStoragePath() {
-  var _a;
-  const context = (_a = vscode13.extensions.getExtension(
-    "mashed-potato-studios.nuxtest"
-  )) == null ? void 0 : _a.extensionPath;
-  if (!context) {
-    throw new Error("Could not get extension context");
+  if (!globalStoragePath) {
+    const extension = vscode13.extensions.getExtension(
+      "mashed-potato-studios.nuxtest"
+    );
+    if (extension && extension.isActive) {
+      const extensionPath = extension.extensionPath;
+      const fallbackPath = path10.join(extensionPath, ".cache");
+      if (!fs8.existsSync(fallbackPath)) {
+        fs8.mkdirSync(fallbackPath, { recursive: true });
+      }
+      return fallbackPath;
+    }
+    throw new Error(
+      "Could not get extension context. Please restart VS Code and try again."
+    );
   }
-  const storagePath = path10.join(context, ".cache");
-  if (!fs8.existsSync(storagePath)) {
-    fs8.mkdirSync(storagePath, { recursive: true });
-  }
-  return storagePath;
+  return path10.join(globalStoragePath, "cache");
 }
 function loadCache() {
   try {
@@ -4844,6 +4932,54 @@ function findNuxtRoot(filePath) {
   console.log("Could not find Nuxt project root");
   return void 0;
 }
+async function ensureVitestInstalled(projectRoot) {
+  const vitestPath = path14.join(projectRoot, "node_modules", "vitest");
+  if (fs9.existsSync(vitestPath)) {
+    return true;
+  }
+  const installVitest = await vscode15.window.showWarningMessage(
+    "Vitest is not installed in this project. Install it now?",
+    "Yes",
+    "No"
+  );
+  if (installVitest !== "Yes") {
+    return false;
+  }
+  return await vscode15.window.withProgress(
+    {
+      location: vscode15.ProgressLocation.Notification,
+      title: "Installing Vitest",
+      cancellable: false
+    },
+    async (progress) => {
+      try {
+        progress.report({ message: "Installing Vitest..." });
+        const outputChannel3 = vscode15.window.createOutputChannel(
+          "NuxTest Vitest Installation"
+        );
+        outputChannel3.appendLine("Installing Vitest...");
+        outputChannel3.show();
+        const { stdout, stderr } = await execa(
+          "npm",
+          ["install", "--save-dev", "vitest", "@vitest/coverage-v8"],
+          { cwd: projectRoot }
+        );
+        outputChannel3.appendLine(stdout);
+        if (stderr) {
+          outputChannel3.appendLine(stderr);
+        }
+        outputChannel3.appendLine("Vitest installed successfully!");
+        vscode15.window.showInformationMessage("Vitest installed successfully!");
+        return true;
+      } catch (error) {
+        vscode15.window.showErrorMessage(
+          `Failed to install Vitest: ${error.message}`
+        );
+        return false;
+      }
+    }
+  );
+}
 
 // src/commands/RunTestWithCoverageCommand.ts
 var RunTestWithCoverageCommand = class extends BaseCommand {
@@ -5405,29 +5541,363 @@ export default defineConfig({
   }
 };
 
-// src/testRunner.ts
+// src/commands/DebugTestCommand.ts
+var vscode19 = __toESM(require("vscode"));
+var path18 = __toESM(require("path"));
+var fs13 = __toESM(require("fs"));
+var DebugTestCommand = class extends BaseCommand {
+  async execute(filePathOrItem, lineNumber) {
+    try {
+      let filePath;
+      let testLineNumber = lineNumber || 1;
+      let testName;
+      if (typeof filePathOrItem === "string") {
+        filePath = filePathOrItem;
+      } else if (filePathOrItem && filePathOrItem.uri) {
+        filePath = filePathOrItem.uri.fsPath;
+        if (filePathOrItem.range) {
+          testLineNumber = filePathOrItem.range.start.line + 1;
+        }
+        if (filePathOrItem.label) {
+          testName = filePathOrItem.label;
+        }
+      } else if (filePathOrItem && filePathOrItem.filePath) {
+        filePath = filePathOrItem.filePath;
+        testLineNumber = filePathOrItem.lineNumber || testLineNumber;
+        testName = filePathOrItem.name;
+      } else {
+        const activeEditor = vscode19.window.activeTextEditor;
+        if (!activeEditor) {
+          this.showError("No test file selected");
+          return;
+        }
+        filePath = activeEditor.document.uri.fsPath;
+        testLineNumber = activeEditor.selection.active.line + 1;
+      }
+      if (!this.isTestFile(filePath)) {
+        this.showError(
+          "Not a test file. Please select a test file (*.spec.ts, *.test.ts)"
+        );
+        return;
+      }
+      const nuxtRoot = findNuxtRoot(filePath);
+      if (!nuxtRoot) {
+        this.showError("Could not find Nuxt project root");
+        return;
+      }
+      const vitestInstalled = await ensureVitestInstalled(nuxtRoot);
+      if (!vitestInstalled) {
+        this.showError("Vitest is required for debugging tests");
+        return;
+      }
+      if (!testName) {
+        testName = this.findTestNameAtLine(filePath, testLineNumber);
+      }
+      await this.createOrUpdateLaunchConfig(nuxtRoot, filePath, testName);
+      await vscode19.debug.startDebugging(
+        vscode19.workspace.getWorkspaceFolder(vscode19.Uri.file(nuxtRoot)),
+        "Debug Vitest Test"
+      );
+      this.showInfo(
+        `Debugging ${testName ? `test: ${testName}` : "file: " + path18.basename(filePath)}`
+      );
+    } catch (error) {
+      this.showError(`Failed to debug test: ${error.message}`);
+    }
+  }
+  isTestFile(filePath) {
+    const fileName = path18.basename(filePath).toLowerCase();
+    return fileName.endsWith(".spec.ts") || fileName.endsWith(".test.ts") || fileName.endsWith(".spec.js") || fileName.endsWith(".test.js");
+  }
+  findTestNameAtLine(filePath, lineNumber) {
+    try {
+      const fileContent = fs13.readFileSync(filePath, "utf8");
+      const lines = fileContent.split("\n");
+      for (let i = lineNumber - 1; i >= 0; i--) {
+        const line = lines[i];
+        const testMatch = line.match(/(?:test|it)\s*\(\s*['"](.+?)['"]/);
+        const describeMatch = line.match(/describe\s*\(\s*['"](.+?)['"]/);
+        if (testMatch) {
+          return testMatch[1];
+        } else if (describeMatch) {
+          return describeMatch[1];
+        }
+      }
+    } catch (err) {
+      console.error("Error reading test file:", err);
+    }
+    return void 0;
+  }
+  async createOrUpdateLaunchConfig(nuxtRoot, testFilePath, testName) {
+    const relativePath = path18.relative(nuxtRoot, testFilePath);
+    const launchConfig = {
+      type: "node",
+      request: "launch",
+      name: "Debug Vitest Test",
+      autoAttachChildProcesses: true,
+      skipFiles: ["<node_internals>/**", "**/node_modules/**"],
+      program: "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      args: [
+        "run",
+        relativePath,
+        ...testName ? ["-t", testName] : [],
+        "--no-coverage"
+      ],
+      console: "integratedTerminal",
+      cwd: "${workspaceFolder}"
+    };
+    const workspaceFolder = vscode19.workspace.getWorkspaceFolder(
+      vscode19.Uri.file(nuxtRoot)
+    );
+    if (!workspaceFolder) {
+      throw new Error("Could not find workspace folder");
+    }
+    const vscodePath = path18.join(nuxtRoot, ".vscode");
+    if (!fs13.existsSync(vscodePath)) {
+      fs13.mkdirSync(vscodePath);
+    }
+    const launchJsonPath = path18.join(vscodePath, "launch.json");
+    let launchJson = {
+      version: "0.2.0",
+      configurations: []
+    };
+    if (fs13.existsSync(launchJsonPath)) {
+      try {
+        launchJson = JSON.parse(fs13.readFileSync(launchJsonPath, "utf8"));
+        if (!launchJson.configurations) {
+          launchJson.configurations = [];
+        }
+      } catch (error) {
+        console.error("Error parsing launch.json:", error);
+      }
+    }
+    const existingConfigIndex = launchJson.configurations.findIndex(
+      (config) => config.name === "Debug Vitest Test"
+    );
+    if (existingConfigIndex >= 0) {
+      launchJson.configurations[existingConfigIndex] = launchConfig;
+    } else {
+      launchJson.configurations.push(launchConfig);
+    }
+    fs13.writeFileSync(
+      launchJsonPath,
+      JSON.stringify(launchJson, null, 2),
+      "utf8"
+    );
+  }
+};
+
+// src/commands/DebugTestFileCommand.ts
 var vscode20 = __toESM(require("vscode"));
 var path19 = __toESM(require("path"));
 var fs14 = __toESM(require("fs"));
+var DebugTestFileCommand = class extends BaseCommand {
+  async execute(filePathOrItem) {
+    try {
+      let filePath;
+      if (typeof filePathOrItem === "string") {
+        filePath = filePathOrItem;
+      } else if (filePathOrItem && filePathOrItem.uri) {
+        filePath = filePathOrItem.uri.fsPath;
+      } else if (filePathOrItem && filePathOrItem.filePath) {
+        filePath = filePathOrItem.filePath;
+      } else {
+        const activeEditor = vscode20.window.activeTextEditor;
+        if (!activeEditor) {
+          this.showError("No test file selected");
+          return;
+        }
+        filePath = activeEditor.document.uri.fsPath;
+      }
+      if (!this.isTestFile(filePath)) {
+        this.showError(
+          "Not a test file. Please select a test file (*.spec.ts, *.test.ts)"
+        );
+        return;
+      }
+      const nuxtRoot = findNuxtRoot(filePath);
+      if (!nuxtRoot) {
+        this.showError("Could not find Nuxt project root");
+        return;
+      }
+      const vitestInstalled = await ensureVitestInstalled(nuxtRoot);
+      if (!vitestInstalled) {
+        this.showError("Vitest is required for debugging tests");
+        return;
+      }
+      await this.createOrUpdateLaunchConfig(nuxtRoot, filePath);
+      await vscode20.debug.startDebugging(
+        vscode20.workspace.getWorkspaceFolder(vscode20.Uri.file(nuxtRoot)),
+        "Debug Vitest Test File"
+      );
+      this.showInfo(`Debugging file: ${path19.basename(filePath)}`);
+    } catch (error) {
+      this.showError(`Failed to debug test file: ${error.message}`);
+    }
+  }
+  isTestFile(filePath) {
+    const fileName = path19.basename(filePath).toLowerCase();
+    return fileName.endsWith(".spec.ts") || fileName.endsWith(".test.ts") || fileName.endsWith(".spec.js") || fileName.endsWith(".test.js");
+  }
+  async createOrUpdateLaunchConfig(nuxtRoot, testFilePath) {
+    const relativePath = path19.relative(nuxtRoot, testFilePath);
+    const launchConfig = {
+      type: "node",
+      request: "launch",
+      name: "Debug Vitest Test File",
+      autoAttachChildProcesses: true,
+      skipFiles: ["<node_internals>/**", "**/node_modules/**"],
+      program: "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      args: ["run", relativePath, "--no-coverage"],
+      console: "integratedTerminal",
+      cwd: "${workspaceFolder}"
+    };
+    const workspaceFolder = vscode20.workspace.getWorkspaceFolder(
+      vscode20.Uri.file(nuxtRoot)
+    );
+    if (!workspaceFolder) {
+      throw new Error("Could not find workspace folder");
+    }
+    const vscodePath = path19.join(nuxtRoot, ".vscode");
+    if (!fs14.existsSync(vscodePath)) {
+      fs14.mkdirSync(vscodePath);
+    }
+    const launchJsonPath = path19.join(vscodePath, "launch.json");
+    let launchJson = {
+      version: "0.2.0",
+      configurations: []
+    };
+    if (fs14.existsSync(launchJsonPath)) {
+      try {
+        launchJson = JSON.parse(fs14.readFileSync(launchJsonPath, "utf8"));
+        if (!launchJson.configurations) {
+          launchJson.configurations = [];
+        }
+      } catch (error) {
+        console.error("Error parsing launch.json:", error);
+      }
+    }
+    const existingConfigIndex = launchJson.configurations.findIndex(
+      (config) => config.name === "Debug Vitest Test File"
+    );
+    if (existingConfigIndex >= 0) {
+      launchJson.configurations[existingConfigIndex] = launchConfig;
+    } else {
+      launchJson.configurations.push(launchConfig);
+    }
+    fs14.writeFileSync(
+      launchJsonPath,
+      JSON.stringify(launchJson, null, 2),
+      "utf8"
+    );
+  }
+};
+
+// src/commands/DebugAllTestsCommand.ts
+var vscode21 = __toESM(require("vscode"));
+var path20 = __toESM(require("path"));
+var fs15 = __toESM(require("fs"));
+var DebugAllTestsCommand = class extends BaseCommand {
+  async execute() {
+    var _a, _b;
+    try {
+      const workspaceRoot = (_b = (_a = vscode21.workspace.workspaceFolders) == null ? void 0 : _a[0]) == null ? void 0 : _b.uri.fsPath;
+      if (!workspaceRoot) {
+        this.showError("No workspace folder open");
+        return;
+      }
+      const nuxtRoot = findNuxtRoot(workspaceRoot) || workspaceRoot;
+      const vitestInstalled = await ensureVitestInstalled(nuxtRoot);
+      if (!vitestInstalled) {
+        this.showError("Vitest is required for debugging tests");
+        return;
+      }
+      await this.createOrUpdateLaunchConfig(nuxtRoot);
+      await vscode21.debug.startDebugging(
+        vscode21.workspace.getWorkspaceFolder(vscode21.Uri.file(nuxtRoot)),
+        "Debug All Vitest Tests"
+      );
+      this.showInfo("Debugging all tests");
+    } catch (error) {
+      this.showError(`Failed to debug tests: ${error.message}`);
+    }
+  }
+  async createOrUpdateLaunchConfig(nuxtRoot) {
+    const launchConfig = {
+      type: "node",
+      request: "launch",
+      name: "Debug All Vitest Tests",
+      autoAttachChildProcesses: true,
+      skipFiles: ["<node_internals>/**", "**/node_modules/**"],
+      program: "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      args: ["run", "--no-coverage"],
+      console: "integratedTerminal",
+      cwd: "${workspaceFolder}"
+    };
+    const workspaceFolder = vscode21.workspace.getWorkspaceFolder(
+      vscode21.Uri.file(nuxtRoot)
+    );
+    if (!workspaceFolder) {
+      throw new Error("Could not find workspace folder");
+    }
+    const vscodePath = path20.join(nuxtRoot, ".vscode");
+    if (!fs15.existsSync(vscodePath)) {
+      fs15.mkdirSync(vscodePath);
+    }
+    const launchJsonPath = path20.join(vscodePath, "launch.json");
+    let launchJson = {
+      version: "0.2.0",
+      configurations: []
+    };
+    if (fs15.existsSync(launchJsonPath)) {
+      try {
+        launchJson = JSON.parse(fs15.readFileSync(launchJsonPath, "utf8"));
+        if (!launchJson.configurations) {
+          launchJson.configurations = [];
+        }
+      } catch (error) {
+        console.error("Error parsing launch.json:", error);
+      }
+    }
+    const existingConfigIndex = launchJson.configurations.findIndex(
+      (config) => config.name === "Debug All Vitest Tests"
+    );
+    if (existingConfigIndex >= 0) {
+      launchJson.configurations[existingConfigIndex] = launchConfig;
+    } else {
+      launchJson.configurations.push(launchConfig);
+    }
+    fs15.writeFileSync(
+      launchJsonPath,
+      JSON.stringify(launchJson, null, 2),
+      "utf8"
+    );
+  }
+};
+
+// src/testRunner.ts
+var vscode23 = __toESM(require("vscode"));
+var path22 = __toESM(require("path"));
+var fs17 = __toESM(require("fs"));
 
 // src/utils/dependencyChecker.ts
-var vscode19 = __toESM(require("vscode"));
-var fs13 = __toESM(require("fs"));
-var path18 = __toESM(require("path"));
+var vscode22 = __toESM(require("vscode"));
+var fs16 = __toESM(require("fs"));
+var path21 = __toESM(require("path"));
 var REQUIRED_DEPENDENCIES = {
   unit: ["@nuxt/test-utils", "vitest", "@vue/test-utils", "happy-dom"],
   e2e: ["@nuxt/test-utils", "playwright-core"]
 };
 async function checkNuxtTestingDependencies(workspaceRoot) {
   try {
-    const packageJsonPath = path18.join(workspaceRoot, "package.json");
-    if (!fs13.existsSync(packageJsonPath)) {
-      vscode19.window.showErrorMessage(
+    const packageJsonPath = path21.join(workspaceRoot, "package.json");
+    if (!fs16.existsSync(packageJsonPath)) {
+      vscode22.window.showErrorMessage(
         "NuxTest: Could not find package.json in your project."
       );
       return false;
     }
-    const packageJsonContent = fs13.readFileSync(packageJsonPath, "utf8");
+    const packageJsonContent = fs16.readFileSync(packageJsonPath, "utf8");
     const packageJson = JSON.parse(packageJsonContent);
     const allDependencies = {
       ...packageJson.dependencies || {},
@@ -5439,21 +5909,21 @@ async function checkNuxtTestingDependencies(workspaceRoot) {
     const missingE2EDeps = REQUIRED_DEPENDENCIES.e2e.filter(
       (dep) => !allDependencies[dep]
     );
-    const vitestConfigExists = fs13.existsSync(path18.join(workspaceRoot, "vitest.config.ts")) || fs13.existsSync(path18.join(workspaceRoot, "vitest.config.js")) || fs13.existsSync(path18.join(workspaceRoot, "vitest.config.mts")) || fs13.existsSync(path18.join(workspaceRoot, "vitest.config.mjs"));
+    const vitestConfigExists = fs16.existsSync(path21.join(workspaceRoot, "vitest.config.ts")) || fs16.existsSync(path21.join(workspaceRoot, "vitest.config.js")) || fs16.existsSync(path21.join(workspaceRoot, "vitest.config.mts")) || fs16.existsSync(path21.join(workspaceRoot, "vitest.config.mjs"));
     if (missingUnitDeps.length > 0 || missingE2EDeps.length > 0 || !vitestConfigExists) {
       const missingDeps = [.../* @__PURE__ */ new Set([...missingUnitDeps, ...missingE2EDeps])];
       let message = "NuxTest: Missing required dependencies for Nuxt testing.";
       const installDepsAction = "Install Dependencies";
       const setupConfigAction = "Setup Vitest Config";
       const learnMoreAction = "Learn More";
-      vscode19.window.showWarningMessage(
+      vscode22.window.showWarningMessage(
         message,
         installDepsAction,
         setupConfigAction,
         learnMoreAction
       ).then(async (selection) => {
         if (selection === installDepsAction) {
-          const terminal = vscode19.window.createTerminal(
+          const terminal = vscode22.window.createTerminal(
             "NuxTest Dependency Installation"
           );
           const installCmd = `npm install --save-dev ${missingDeps.join(
@@ -5464,8 +5934,8 @@ async function checkNuxtTestingDependencies(workspaceRoot) {
         } else if (selection === setupConfigAction) {
           await createVitestConfig(workspaceRoot);
         } else if (selection === learnMoreAction) {
-          vscode19.env.openExternal(
-            vscode19.Uri.parse("https://nuxt.com/docs/getting-started/testing")
+          vscode22.env.openExternal(
+            vscode22.Uri.parse("https://nuxt.com/docs/getting-started/testing")
           );
         }
       });
@@ -5474,16 +5944,16 @@ async function checkNuxtTestingDependencies(workspaceRoot) {
     return true;
   } catch (error) {
     console.error("Error checking Nuxt testing dependencies:", error);
-    vscode19.window.showErrorMessage(
+    vscode22.window.showErrorMessage(
       `NuxTest: Error checking dependencies - ${error.message}`
     );
     return false;
   }
 }
 async function createVitestConfig(workspaceRoot) {
-  const vitestConfigPath = path18.join(workspaceRoot, "vitest.config.ts");
-  if (fs13.existsSync(vitestConfigPath)) {
-    const overwrite = await vscode19.window.showWarningMessage(
+  const vitestConfigPath = path21.join(workspaceRoot, "vitest.config.ts");
+  if (fs16.existsSync(vitestConfigPath)) {
+    const overwrite = await vscode22.window.showWarningMessage(
       "vitest.config.ts already exists. Overwrite?",
       "Yes",
       "No"
@@ -5506,10 +5976,10 @@ export default defineVitestConfig({
   }
 })
 `;
-  fs13.writeFileSync(vitestConfigPath, configContent, "utf8");
-  vscode19.window.showInformationMessage("NuxTest: Created vitest.config.ts");
-  const document = await vscode19.workspace.openTextDocument(vitestConfigPath);
-  vscode19.window.showTextDocument(document);
+  fs16.writeFileSync(vitestConfigPath, configContent, "utf8");
+  vscode22.window.showInformationMessage("NuxTest: Created vitest.config.ts");
+  const document = await vscode22.workspace.openTextDocument(vitestConfigPath);
+  vscode22.window.showTextDocument(document);
 }
 
 // src/testRunner.ts
@@ -5517,7 +5987,7 @@ var globalTestCache = loadCache();
 var outputChannel2;
 function getOutputChannel() {
   if (!outputChannel2) {
-    outputChannel2 = vscode20.window.createOutputChannel("NuxTest");
+    outputChannel2 = vscode23.window.createOutputChannel("NuxTest");
   }
   return outputChannel2;
 }
@@ -5530,20 +6000,20 @@ function findNuxtRoot2(filePath) {
   if (!filePath) {
     return void 0;
   }
-  let currentDir = path19.dirname(filePath);
+  let currentDir = path22.dirname(filePath);
   const maxDepth = 10;
   let depth = 0;
   while (currentDir && depth < maxDepth) {
-    const hasNuxtConfig = fs14.existsSync(path19.join(currentDir, "nuxt.config.js")) || fs14.existsSync(path19.join(currentDir, "nuxt.config.ts"));
-    const hasPackageJson = fs14.existsSync(path19.join(currentDir, "package.json"));
+    const hasNuxtConfig = fs17.existsSync(path22.join(currentDir, "nuxt.config.js")) || fs17.existsSync(path22.join(currentDir, "nuxt.config.ts"));
+    const hasPackageJson = fs17.existsSync(path22.join(currentDir, "package.json"));
     if (hasNuxtConfig) {
       return currentDir;
     }
     if (hasPackageJson) {
       try {
-        const packageJsonPath = path19.join(currentDir, "package.json");
+        const packageJsonPath = path22.join(currentDir, "package.json");
         const packageJson = JSON.parse(
-          fs14.readFileSync(packageJsonPath, "utf8")
+          fs17.readFileSync(packageJsonPath, "utf8")
         );
         const dependencies = {
           ...packageJson.dependencies,
@@ -5555,18 +6025,18 @@ function findNuxtRoot2(filePath) {
       } catch (error) {
       }
     }
-    const parentDir = path19.dirname(currentDir);
+    const parentDir = path22.dirname(currentDir);
     if (parentDir === currentDir) {
       break;
     }
     currentDir = parentDir;
     depth++;
   }
-  return (_b = (_a = vscode20.workspace.workspaceFolders) == null ? void 0 : _a[0]) == null ? void 0 : _b.uri.fsPath;
+  return (_b = (_a = vscode23.workspace.workspaceFolders) == null ? void 0 : _a[0]) == null ? void 0 : _b.uri.fsPath;
 }
 function findTestNameAtLine(filePath, lineNumber) {
   try {
-    const fileContent = fs14.readFileSync(filePath, "utf8");
+    const fileContent = fs17.readFileSync(filePath, "utf8");
     const lines = fileContent.split("\n");
     for (let i = lineNumber; i >= 0; i--) {
       const line = lines[i];
@@ -5583,11 +6053,33 @@ function findTestNameAtLine(filePath, lineNumber) {
   }
   return void 0;
 }
-async function runNuxtTest(filePath, lineNumber) {
+async function runNuxtTest(filePathOrItem, lineNumber) {
   try {
+    let filePath;
+    let testLineNumber = lineNumber || 1;
+    let testName;
+    if (typeof filePathOrItem === "string") {
+      filePath = filePathOrItem;
+    } else if (filePathOrItem && filePathOrItem.uri) {
+      filePath = filePathOrItem.uri.fsPath;
+      if (filePathOrItem.range) {
+        testLineNumber = filePathOrItem.range.start.line + 1;
+      }
+      if (filePathOrItem.label) {
+        testName = filePathOrItem.label;
+      }
+    } else if (filePathOrItem && filePathOrItem.filePath) {
+      filePath = filePathOrItem.filePath;
+      testLineNumber = filePathOrItem.lineNumber || testLineNumber;
+      testName = filePathOrItem.name;
+    } else {
+      throw new Error(
+        "Invalid test item. Expected a file path or a test item object."
+      );
+    }
     const nuxtRoot = findNuxtRoot2(filePath);
     if (!nuxtRoot) {
-      vscode20.window.showErrorMessage(
+      vscode23.window.showErrorMessage(
         "Could not find Nuxt project root. Make sure you have a nuxt.config.js or nuxt.config.ts file in your project."
       );
       return;
@@ -5596,24 +6088,35 @@ async function runNuxtTest(filePath, lineNumber) {
     if (!dependenciesInstalled) {
       return;
     }
-    const testName = findTestNameAtLine(filePath, lineNumber);
     if (!testName) {
-      vscode20.window.showErrorMessage(
-        "Could not find a test at the specified line."
-      );
-      return;
+      testName = findTestNameAtLine(filePath, testLineNumber);
+      if (!testName) {
+        vscode23.window.showErrorMessage(
+          "Could not find a test at the specified line."
+        );
+        return;
+      }
     }
     const shouldRun = shouldRunTest(filePath, globalTestCache);
     if (!shouldRun) {
-      const cachedResults = getCachedResults(filePath, globalTestCache);
+      const cachedResults = getCachedResults(
+        filePath,
+        globalTestCache
+      );
       if (cachedResults) {
-        const testResults = cachedResults.filter((result) => result.name === testName);
+        const testResults = cachedResults.filter(
+          (result) => result.name === testName
+        );
         if (testResults.length > 0) {
-          vscode20.window.showInformationMessage(`Using cached results for test: ${testName}`);
+          vscode23.window.showInformationMessage(
+            `Using cached results for test: ${testName}`
+          );
           testResultsProvider.addResults(testResults);
           const outputChannel4 = getOutputChannel();
-          outputChannel4.appendLine(`
-[NuxTest] Using cached results for test: ${testName}`);
+          outputChannel4.appendLine(
+            `
+[NuxTest] Using cached results for test: ${testName}`
+          );
           outputChannel4.appendLine(`Status: ${testResults[0].status}`);
           if (testResults[0].message) {
             outputChannel4.appendLine(`Message: ${testResults[0].message}`);
@@ -5626,12 +6129,12 @@ async function runNuxtTest(filePath, lineNumber) {
       }
     }
     testResultsProvider.clearResults();
-    const statusBarMessage = vscode20.window.setStatusBarMessage(
+    const statusBarMessage = vscode23.window.setStatusBarMessage(
       `$(testing-run-icon) Running test: ${testName}...`
     );
-    const workspaceFolders = vscode20.workspace.workspaceFolders;
-    const relativePath = workspaceFolders ? path19.relative(workspaceFolders[0].uri.fsPath, filePath) : path19.basename(filePath);
-    vscode20.window.showInformationMessage(`Running test: ${testName}`);
+    const workspaceFolders = vscode23.workspace.workspaceFolders;
+    const relativePath = workspaceFolders ? path22.relative(workspaceFolders[0].uri.fsPath, filePath) : path22.basename(filePath);
+    vscode23.window.showInformationMessage(`Running test: ${testName}`);
     const outputChannel3 = getOutputChannel();
     outputChannel3.clear();
     outputChannel3.appendLine(`Running test: ${testName} in ${relativePath}`);
@@ -5640,7 +6143,7 @@ async function runNuxtTest(filePath, lineNumber) {
       name: testName,
       status: "running",
       filePath,
-      lineNumber
+      lineNumber: testLineNumber
     });
     const command = "npx";
     const args = [
@@ -5664,15 +6167,19 @@ async function runNuxtTest(filePath, lineNumber) {
         status: "passed",
         duration,
         filePath,
-        lineNumber
+        lineNumber: testLineNumber
       };
       testResultsProvider.clearResults();
       testResultsProvider.addResult(result);
-      vscode20.window.setStatusBarMessage(
+      vscode23.window.setStatusBarMessage(
         `$(testing-passed-icon) Test passed: ${testName}`,
         5e3
       );
-      globalTestCache = updateCache(filePath, [result], globalTestCache);
+      globalTestCache = updateCache(
+        filePath,
+        [result],
+        globalTestCache
+      );
       outputChannel3.appendLine("\nTest passed! \u{1F389}");
       outputChannel3.appendLine(stdout);
     } else {
@@ -5682,15 +6189,19 @@ async function runNuxtTest(filePath, lineNumber) {
         status: "failed",
         message: filteredStderr || stdout,
         filePath,
-        lineNumber
+        lineNumber: testLineNumber
       };
       testResultsProvider.clearResults();
       testResultsProvider.addResult(result);
-      vscode20.window.setStatusBarMessage(
+      vscode23.window.setStatusBarMessage(
         `$(testing-failed-icon) Test failed: ${testName}`,
         5e3
       );
-      globalTestCache = updateCache(filePath, [result], globalTestCache);
+      globalTestCache = updateCache(
+        filePath,
+        [result],
+        globalTestCache
+      );
       outputChannel3.appendLine("\nTest failed! \u274C");
       outputChannel3.appendLine(stdout);
       if (filteredStderr) {
@@ -5699,15 +6210,27 @@ async function runNuxtTest(filePath, lineNumber) {
       }
     }
   } catch (error) {
-    vscode20.window.showErrorMessage(`Failed to run test: ${error.message}`);
+    vscode23.window.showErrorMessage(`Failed to run test: ${error.message}`);
     getOutputChannel().appendLine(`Error: ${error.message}`);
   }
 }
-async function runNuxtTestFile(filePath) {
+async function runNuxtTestFile(filePathOrItem) {
   try {
+    let filePath;
+    if (typeof filePathOrItem === "string") {
+      filePath = filePathOrItem;
+    } else if (filePathOrItem && filePathOrItem.uri) {
+      filePath = filePathOrItem.uri.fsPath;
+    } else if (filePathOrItem && filePathOrItem.filePath) {
+      filePath = filePathOrItem.filePath;
+    } else {
+      throw new Error(
+        "Invalid test item. Expected a file path or a test item object."
+      );
+    }
     const nuxtRoot = findNuxtRoot2(filePath);
     if (!nuxtRoot) {
-      vscode20.window.showErrorMessage(
+      vscode23.window.showErrorMessage(
         "Could not find Nuxt project root. Make sure you have a nuxt.config.js or nuxt.config.ts file in your project."
       );
       return;
@@ -5718,27 +6241,40 @@ async function runNuxtTestFile(filePath) {
     }
     const shouldRun = shouldRunTest(filePath, globalTestCache);
     if (!shouldRun) {
-      const cachedResults = getCachedResults(filePath, globalTestCache);
+      const cachedResults = getCachedResults(
+        filePath,
+        globalTestCache
+      );
       if (cachedResults && cachedResults.length > 0) {
-        vscode20.window.showInformationMessage(`Using cached results for file: ${path19.basename(filePath)}`);
+        vscode23.window.showInformationMessage(
+          `Using cached results for file: ${path22.basename(filePath)}`
+        );
         testResultsProvider.addResults(cachedResults);
         const outputChannel4 = getOutputChannel();
-        outputChannel4.appendLine(`
-[NuxTest] Using cached results for file: ${path19.basename(filePath)}`);
+        outputChannel4.appendLine(
+          `
+[NuxTest] Using cached results for file: ${path22.basename(
+            filePath
+          )}`
+        );
         outputChannel4.appendLine(`Total tests: ${cachedResults.length}`);
-        outputChannel4.appendLine(`Passed: ${cachedResults.filter((r) => r.status === "passed").length}`);
-        outputChannel4.appendLine(`Failed: ${cachedResults.filter((r) => r.status === "failed").length}`);
+        outputChannel4.appendLine(
+          `Passed: ${cachedResults.filter((r) => r.status === "passed").length}`
+        );
+        outputChannel4.appendLine(
+          `Failed: ${cachedResults.filter((r) => r.status === "failed").length}`
+        );
         return;
       }
     }
     testResultsProvider.clearResults();
-    const statusBarMessage = vscode20.window.setStatusBarMessage(
-      `$(testing-run-icon) Running tests in ${path19.basename(filePath)}...`
+    const statusBarMessage = vscode23.window.setStatusBarMessage(
+      `$(testing-run-icon) Running tests in ${path22.basename(filePath)}...`
     );
-    const workspaceFolders = vscode20.workspace.workspaceFolders;
-    const relativePath = workspaceFolders ? path19.relative(workspaceFolders[0].uri.fsPath, filePath) : path19.basename(filePath);
-    vscode20.window.showInformationMessage(
-      `Running tests in ${path19.basename(filePath)}`
+    const workspaceFolders = vscode23.workspace.workspaceFolders;
+    const relativePath = workspaceFolders ? path22.relative(workspaceFolders[0].uri.fsPath, filePath) : path22.basename(filePath);
+    vscode23.window.showInformationMessage(
+      `Running tests in ${path22.basename(filePath)}`
     );
     const outputChannel3 = getOutputChannel();
     outputChannel3.clear();
@@ -5757,16 +6293,16 @@ async function runNuxtTestFile(filePath) {
     testResultsProvider.addResults(results);
     globalTestCache = updateCache(filePath, results, globalTestCache);
     if (exitCode === 0) {
-      vscode20.window.setStatusBarMessage(
-        `$(testing-passed-icon) All tests passed in ${path19.basename(filePath)}`,
+      vscode23.window.setStatusBarMessage(
+        `$(testing-passed-icon) All tests passed in ${path22.basename(filePath)}`,
         5e3
       );
       outputChannel3.appendLine("\nAll tests passed! \u{1F389}");
       outputChannel3.appendLine(stdout);
     } else {
       const filteredStderr = filterNuxtWarnings(stderr);
-      vscode20.window.setStatusBarMessage(
-        `$(testing-failed-icon) Tests failed in ${path19.basename(filePath)}`,
+      vscode23.window.setStatusBarMessage(
+        `$(testing-failed-icon) Tests failed in ${path22.basename(filePath)}`,
         5e3
       );
       outputChannel3.appendLine("\nTests failed! \u274C");
@@ -5777,9 +6313,7 @@ async function runNuxtTestFile(filePath) {
       }
     }
   } catch (error) {
-    vscode20.window.showErrorMessage(
-      `Failed to run tests: ${error.message}`
-    );
+    vscode23.window.showErrorMessage(`Failed to run tests: ${error.message}`);
     getOutputChannel().appendLine(`Error: ${error.message}`);
   }
 }
@@ -5799,15 +6333,15 @@ function filterNuxtWarnings(stderr) {
 }
 async function runAllNuxtTests() {
   try {
-    const workspaceFolders = vscode20.workspace.workspaceFolders;
+    const workspaceFolders = vscode23.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {
-      vscode20.window.showErrorMessage("No workspace folder open");
+      vscode23.window.showErrorMessage("No workspace folder open");
       return;
     }
     const rootPath = workspaceFolders[0].uri.fsPath;
     const nuxtRoot = findNuxtRoot2(rootPath);
     if (!nuxtRoot) {
-      vscode20.window.showErrorMessage(
+      vscode23.window.showErrorMessage(
         "Could not find Nuxt project root. Make sure you have a nuxt.config.js or nuxt.config.ts file in your project."
       );
       return;
@@ -5816,7 +6350,7 @@ async function runAllNuxtTests() {
     if (!dependenciesInstalled) {
       return;
     }
-    const useCachedResults = await vscode20.window.showQuickPick(
+    const useCachedResults = await vscode23.window.showQuickPick(
       ["Yes, use cached results where available", "No, run all tests fresh"],
       { placeHolder: "Do you want to use cached results where available?" }
     );
@@ -5825,20 +6359,20 @@ async function runAllNuxtTests() {
     }
     const useCache = useCachedResults.startsWith("Yes");
     testResultsProvider.clearResults();
-    const statusBarMessage = vscode20.window.setStatusBarMessage(
+    const statusBarMessage = vscode23.window.setStatusBarMessage(
       `$(testing-run-icon) Running all tests...`
     );
-    vscode20.window.showInformationMessage("Running all tests");
+    vscode23.window.showInformationMessage("Running all tests");
     const outputChannel3 = getOutputChannel();
     outputChannel3.clear();
     outputChannel3.appendLine("Running all tests");
     outputChannel3.show(true);
-    const testFiles = await vscode20.workspace.findFiles(
+    const testFiles = await vscode23.workspace.findFiles(
       "**/tests/**/*.spec.{js,ts}",
       "**/node_modules/**"
     );
     if (testFiles.length === 0) {
-      vscode20.window.showInformationMessage("No test files found");
+      vscode23.window.showInformationMessage("No test files found");
       outputChannel3.appendLine("No test files found");
       statusBarMessage.dispose();
       return;
@@ -5852,17 +6386,28 @@ async function runAllNuxtTests() {
     for (let i = 0; i < testFiles.length; i++) {
       const testFile = testFiles[i];
       const filePath = testFile.fsPath;
-      const relativePath = path19.relative(rootPath, filePath);
-      outputChannel3.appendLine(`
-[${i + 1}/${testFiles.length}] Running tests in ${relativePath}`);
+      const relativePath = path22.relative(rootPath, filePath);
+      outputChannel3.appendLine(
+        `
+[${i + 1}/${testFiles.length}] Running tests in ${relativePath}`
+      );
       if (useCache && !shouldRunTest(filePath, globalTestCache)) {
-        const cachedResults = getCachedResults(filePath, globalTestCache);
+        const cachedResults = getCachedResults(
+          filePath,
+          globalTestCache
+        );
         if (cachedResults && cachedResults.length > 0) {
           outputChannel3.appendLine(`Using cached results for ${relativePath}`);
           allResults = [...allResults, ...cachedResults];
-          passedCount += cachedResults.filter((r) => r.status === "passed").length;
-          failedCount += cachedResults.filter((r) => r.status === "failed").length;
-          skippedCount += cachedResults.filter((r) => r.status === "skipped").length;
+          passedCount += cachedResults.filter(
+            (r) => r.status === "passed"
+          ).length;
+          failedCount += cachedResults.filter(
+            (r) => r.status === "failed"
+          ).length;
+          skippedCount += cachedResults.filter(
+            (r) => r.status === "skipped"
+          ).length;
           cachedCount++;
           continue;
         }
@@ -5880,7 +6425,11 @@ async function runAllNuxtTests() {
         passedCount += results.filter((r) => r.status === "passed").length;
         failedCount += results.filter((r) => r.status === "failed").length;
         skippedCount += results.filter((r) => r.status === "skipped").length;
-        globalTestCache = updateCache(filePath, results, globalTestCache);
+        globalTestCache = updateCache(
+          filePath,
+          results,
+          globalTestCache
+        );
         if (exitCode === 0) {
           outputChannel3.appendLine("\u2705 All tests passed");
         } else {
@@ -5901,14 +6450,14 @@ async function runAllNuxtTests() {
     testResultsProvider.addResults(allResults);
     const totalTests = passedCount + failedCount + skippedCount;
     if (failedCount === 0) {
-      vscode20.window.setStatusBarMessage(
+      vscode23.window.setStatusBarMessage(
         `$(testing-passed-icon) All ${totalTests} tests passed`,
         5e3
       );
       outputChannel3.appendLine(`
 \u2705 All ${totalTests} tests passed!`);
     } else {
-      vscode20.window.setStatusBarMessage(
+      vscode23.window.setStatusBarMessage(
         `$(testing-failed-icon) ${failedCount} of ${totalTests} tests failed`,
         5e3
       );
@@ -5918,8 +6467,10 @@ async function runAllNuxtTests() {
       );
     }
     if (useCache && cachedCount > 0) {
-      outputChannel3.appendLine(`
-\u{1F4CA} Cache usage: ${cachedCount} of ${testFiles.length} files used cached results`);
+      outputChannel3.appendLine(
+        `
+\u{1F4CA} Cache usage: ${cachedCount} of ${testFiles.length} files used cached results`
+      );
     }
     outputChannel3.appendLine(`
 \u{1F4CA} Test summary:`);
@@ -5928,7 +6479,7 @@ async function runAllNuxtTests() {
     outputChannel3.appendLine(`Failed: ${failedCount}`);
     outputChannel3.appendLine(`Skipped: ${skippedCount}`);
   } catch (error) {
-    vscode20.window.showErrorMessage(`Failed to run tests: ${error.message}`);
+    vscode23.window.showErrorMessage(`Failed to run tests: ${error.message}`);
     getOutputChannel().appendLine(`Error: ${error.message}`);
   }
 }
@@ -5937,7 +6488,7 @@ function parseTestResults(output, filePath) {
   const lines = output.split("\n");
   let fileContent = [];
   try {
-    fileContent = fs14.readFileSync(filePath, "utf8").split("\n");
+    fileContent = fs17.readFileSync(filePath, "utf8").split("\n");
   } catch (error) {
     console.error("Error reading test file:", error);
   }
@@ -6033,7 +6584,7 @@ function parseTestResults(output, filePath) {
           j++;
         }
       }
-      if (testFilePath.includes(path19.basename(filePath))) {
+      if (testFilePath.includes(path22.basename(filePath))) {
         results.push({
           name: fullTestName,
           status,
@@ -6062,99 +6613,115 @@ var actionsProvider;
 var coverageProvider;
 function activate(context) {
   var _a, _b;
+  initializeStoragePath(context);
   testExplorerProvider = new TestExplorerProvider(context);
   testResultsProvider2 = new TestResultsProvider();
   actionsProvider = new ActionsProvider(context);
   coverageProvider = new CoverageProvider();
   initializeTestResultsProvider(testResultsProvider2);
-  vscode21.window.registerTreeDataProvider(
+  vscode24.window.registerTreeDataProvider(
     "nuxtest-test-explorer",
     testExplorerProvider
   );
-  vscode21.window.registerTreeDataProvider(
+  vscode24.window.registerTreeDataProvider(
     "nuxtest-test-results",
     testResultsProvider2
   );
-  vscode21.window.registerTreeDataProvider("nuxtest-actions", actionsProvider);
-  vscode21.window.registerTreeDataProvider("nuxtest-coverage", coverageProvider);
-  const workspaceRoot = (_b = (_a = vscode21.workspace.workspaceFolders) == null ? void 0 : _a[0]) == null ? void 0 : _b.uri.fsPath;
+  vscode24.window.registerTreeDataProvider("nuxtest-actions", actionsProvider);
+  vscode24.window.registerTreeDataProvider("nuxtest-coverage", coverageProvider);
+  const workspaceRoot = (_b = (_a = vscode24.workspace.workspaceFolders) == null ? void 0 : _a[0]) == null ? void 0 : _b.uri.fsPath;
   if (workspaceRoot) {
     checkNuxtTestingDependencies(workspaceRoot);
   }
   context.subscriptions.push(
-    vscode21.commands.registerCommand(
+    vscode24.commands.registerCommand(
       "nuxtest.runTest",
       async (filePathOrItem, lineNumber) => {
         await runNuxtTest(filePathOrItem, lineNumber || 1);
       }
     ),
-    vscode21.commands.registerCommand(
+    vscode24.commands.registerCommand(
       "nuxtest.runTestFile",
       async (filePathOrItem) => {
         await runNuxtTestFile(filePathOrItem);
       }
     ),
-    vscode21.commands.registerCommand("nuxtest.runAllTests", async () => {
+    vscode24.commands.registerCommand("nuxtest.runAllTests", async () => {
       await runAllNuxtTests();
     }),
-    vscode21.commands.registerCommand("nuxtest.refreshTests", () => {
+    vscode24.commands.registerCommand("nuxtest.refreshTests", () => {
       testExplorerProvider.refresh();
     }),
-    vscode21.commands.registerCommand(
+    vscode24.commands.registerCommand(
       "nuxtest.createTest",
       (uri) => {
         new CreateTestCommand(context).execute(uri);
       }
     ),
     // New commands for the Actions view
-    vscode21.commands.registerCommand("nuxtest.createUnitTest", () => {
+    vscode24.commands.registerCommand("nuxtest.createUnitTest", () => {
       new CreateUnitTestCommand(context).execute();
     }),
-    vscode21.commands.registerCommand("nuxtest.createE2ETest", () => {
+    vscode24.commands.registerCommand("nuxtest.createE2ETest", () => {
       new CreateE2ETestCommand(context).execute();
     }),
-    vscode21.commands.registerCommand("nuxtest.setupTestEnvironment", () => {
+    vscode24.commands.registerCommand("nuxtest.setupTestEnvironment", () => {
       new SetupTestEnvironmentCommand(context).execute();
     }),
-    vscode21.commands.registerCommand("nuxtest.generateTestForComponent", () => {
+    vscode24.commands.registerCommand("nuxtest.generateTestForComponent", () => {
       new GenerateTestForComponentCommand(context).execute();
     }),
-    vscode21.commands.registerCommand("nuxtest.installPlaywrightBrowsers", () => {
+    vscode24.commands.registerCommand("nuxtest.installPlaywrightBrowsers", () => {
       new InstallPlaywrightBrowsersCommand(context).execute();
     }),
-    vscode21.commands.registerCommand("nuxtest.fixE2ETests", () => {
+    vscode24.commands.registerCommand("nuxtest.fixE2ETests", () => {
       new FixE2ETestsCommand(context).execute();
     }),
-    vscode21.commands.registerCommand("nuxtest.clearTestCache", () => {
+    vscode24.commands.registerCommand("nuxtest.clearTestCache", () => {
       new ClearTestCacheCommand(context).execute();
     }),
-    vscode21.commands.registerCommand("nuxtest.refreshActions", () => {
+    vscode24.commands.registerCommand("nuxtest.refreshActions", () => {
       actionsProvider.refresh();
     }),
     // Coverage commands
-    vscode21.commands.registerCommand(
+    vscode24.commands.registerCommand(
       "nuxtest.runTestWithCoverage",
       (filePathOrUri) => {
         new RunTestWithCoverageCommand(context).execute(filePathOrUri);
       }
     ),
-    vscode21.commands.registerCommand("nuxtest.runAllTestsWithCoverage", () => {
+    vscode24.commands.registerCommand("nuxtest.runAllTestsWithCoverage", () => {
       new RunAllTestsWithCoverageCommand(context).execute();
     }),
-    vscode21.commands.registerCommand("nuxtest.showCoverage", () => {
+    vscode24.commands.registerCommand("nuxtest.showCoverage", () => {
       new ShowCoverageCommand(context).execute();
     }),
-    vscode21.commands.registerCommand(
+    vscode24.commands.registerCommand(
       "nuxtest.loadCoverageData",
       (coverageFilePath) => {
         return coverageProvider.loadCoverageData(coverageFilePath);
       }
     ),
-    vscode21.commands.registerCommand("nuxtest.clearCoverageData", () => {
+    vscode24.commands.registerCommand("nuxtest.clearCoverageData", () => {
       coverageProvider.clearCoverageData();
+    }),
+    vscode24.commands.registerCommand(
+      "nuxtest.debugTest",
+      async (filePathOrItem, lineNumber) => {
+        new DebugTestCommand(context).execute(filePathOrItem, lineNumber);
+      }
+    ),
+    vscode24.commands.registerCommand(
+      "nuxtest.debugTestFile",
+      async (filePathOrItem) => {
+        new DebugTestFileCommand(context).execute(filePathOrItem);
+      }
+    ),
+    vscode24.commands.registerCommand("nuxtest.debugAllTests", async () => {
+      new DebugAllTestsCommand(context).execute();
     })
   );
-  vscode21.window.showInformationMessage("NuxTest extension is now active!");
+  vscode24.window.showInformationMessage("NuxTest extension is now active!");
 }
 function deactivate() {
 }

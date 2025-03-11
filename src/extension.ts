@@ -14,6 +14,9 @@ import { ClearTestCacheCommand } from "./commands/ClearTestCacheCommand";
 import { RunTestWithCoverageCommand } from "./commands/RunTestWithCoverageCommand";
 import { RunAllTestsWithCoverageCommand } from "./commands/RunAllTestsWithCoverageCommand";
 import { ShowCoverageCommand } from "./commands/ShowCoverageCommand";
+import { DebugTestCommand } from "./commands/DebugTestCommand";
+import { DebugTestFileCommand } from "./commands/DebugTestFileCommand";
+import { DebugAllTestsCommand } from "./commands/DebugAllTestsCommand";
 import {
   runNuxtTest,
   runNuxtTestFile,
@@ -21,6 +24,7 @@ import {
   initializeTestResultsProvider,
 } from "./testRunner";
 import { checkNuxtTestingDependencies } from "./utils/dependencyChecker";
+import { initializeStoragePath } from "./utils/testCache";
 
 let testExplorerProvider: TestExplorerProvider;
 let testResultsProvider: TestResultsProvider;
@@ -28,6 +32,9 @@ let actionsProvider: ActionsProvider;
 let coverageProvider: CoverageProvider;
 
 export function activate(context: vscode.ExtensionContext) {
+  // Initialize storage path for test cache
+  initializeStoragePath(context);
+
   // Initialize providers
   testExplorerProvider = new TestExplorerProvider(context);
   testResultsProvider = new TestResultsProvider();
@@ -144,6 +151,24 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand("nuxtest.clearCoverageData", () => {
       coverageProvider.clearCoverageData();
+    }),
+
+    vscode.commands.registerCommand(
+      "nuxtest.debugTest",
+      async (filePathOrItem: string | any, lineNumber?: number) => {
+        new DebugTestCommand(context).execute(filePathOrItem, lineNumber);
+      }
+    ),
+
+    vscode.commands.registerCommand(
+      "nuxtest.debugTestFile",
+      async (filePathOrItem: string | any) => {
+        new DebugTestFileCommand(context).execute(filePathOrItem);
+      }
+    ),
+
+    vscode.commands.registerCommand("nuxtest.debugAllTests", async () => {
+      new DebugAllTestsCommand(context).execute();
     })
   );
 
