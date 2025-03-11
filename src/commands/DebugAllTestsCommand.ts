@@ -34,7 +34,7 @@ export class DebugAllTestsCommand extends BaseCommand {
       );
 
       this.showInfo("Debugging all tests");
-    } catch (error) {
+    } catch (error: any) {
       this.showError(`Failed to debug tests: ${error.message}`);
     }
   }

@@ -1,7 +1,7 @@
 {
   "name": "@mashed-potato-studios/nuxtest",
   "displayName": "NuxTest - Nuxt Testing Extension",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "VSCode extension for running Nuxt.js tests",
   "publisher": "mashed-potato-studios",
   "private": true,

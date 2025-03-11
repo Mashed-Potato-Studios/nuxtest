@@ -7,6 +7,7 @@ NuxTest is a VS Code extension designed to simplify running tests for Nuxt.js ap
 - 🧪 Run a single test at the cursor position
 - 📂 Run all tests in the current file
 - 🚀 Run all tests in the project
+- 🐞 Debug tests directly in VS Code
 - 📋 View test results directly in the editor's output panel
 - ⚡ Test result caching for faster test runs
 - 🔧 Automatic E2E test fixes for common issues
@@ -29,6 +30,9 @@ The extension provides the following commands:
 - `NuxTest: Run Test at Cursor` - Run the test at the current cursor position
 - `NuxTest: Run Current Test File` - Run all tests in the current file
 - `NuxTest: Run All Tests` - Run all tests in the project
+- `NuxTest: Debug Test at Cursor` - Debug the test at the current cursor position
+- `NuxTest: Debug Current Test File` - Debug all tests in the current file
+- `NuxTest: Debug All Tests` - Debug all tests in the project
 - `NuxTest: Create Unit Test` - Create a new unit test with a template
 - `NuxTest: Create E2E Test` - Create a new end-to-end test with a template
 - `NuxTest: Fix E2E Tests` - Fix common issues in E2E tests
@@ -42,8 +46,19 @@ The extension provides the following commands:
 
 Right-click in a test file to access NuxTest commands:
 
-- In the editor: Run the test at cursor position, run the current test file, or run with coverage
-- In the explorer: Run the selected test file or run with coverage
+- In the editor: Run or debug the test at cursor position, run the current test file, or run with coverage
+- In the explorer: Run or debug the selected test file or run with coverage
+
+### Test Debugging
+
+NuxTest provides integrated debugging for your tests:
+
+- Debug a specific test at the cursor position
+- Debug all tests in a file
+- Debug all tests in the project
+- Automatically creates and updates VS Code launch configurations
+- Checks for required dependencies and offers to install them if missing
+- Provides a seamless debugging experience with breakpoints, variable inspection, and more
 
 ### Test Caching
 
