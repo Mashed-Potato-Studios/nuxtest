@@ -1,10 +1,19 @@
 {
-  "name": "@mashed-potato-studios/nuxtest",
+  "name": "nuxtest",
   "displayName": "NuxTest - Nuxt Testing Extension",
   "version": "0.7.1",
   "description": "VSCode extension for running Nuxt.js tests",
-  "publisher": "mashed-potato-studios",
-  "private": true,
+  "publisher": "MashedPotatoStudios",
+  "license": "MIT",
+  "icon": "resources/nuxtest.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mashed-potato-studios/nuxtest.git"
+  },
+  "homepage": "https://github.com/mashed-potato-studios/nuxtest",
+  "bugs": {
+    "url": "https://github.com/mashed-potato-studios/nuxtest/issues"
+  },
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -403,11 +412,6 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Mashed-Potato-Studios/nuxtest",
-    "directory": "packages/utils/nuxtest"
-  },
   "keywords": [
     "nuxt",
     "testing",
@@ -416,7 +420,6 @@
     "test-runner"
   ],
   "author": "Mashed Potato Studios",
-  "license": "MIT",
   "dependencies": {
     "@nuxt/test-utils": "^3.11.0",
     "@vue/test-utils": "^2.4.4",
